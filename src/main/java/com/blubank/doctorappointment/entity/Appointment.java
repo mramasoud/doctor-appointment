@@ -7,11 +7,10 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.persistence.*;
-import java.sql.Date;
-import java.time.LocalDate;
+import java.util.Date;
 
 @Entity
-@Table(name ="APPOINTMENT")
+@Table(name = "APPOINTMENT")
 @Getter
 @Setter
 @NoArgsConstructor
@@ -24,6 +23,8 @@ public class Appointment {
     private Date startTime;
     @Column
     private Date endTime;
+    @Column
+    private Integer dayOfMonth;
     @Column
     private AppointmentStatus status;
     @ManyToOne(fetch = FetchType.LAZY)
