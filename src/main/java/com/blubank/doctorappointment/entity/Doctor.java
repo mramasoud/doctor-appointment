@@ -17,4 +17,7 @@ public class Doctor{
     private Long doctors_Id;
     private String name;
 
+    public Doctor(String name) {
+        this.name = name;
+    }
 }
