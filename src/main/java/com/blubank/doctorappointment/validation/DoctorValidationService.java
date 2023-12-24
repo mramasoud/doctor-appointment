@@ -22,6 +22,8 @@ public class DoctorValidationService implements ValidationService<DoctorAvailabi
             responses.add(new Response(DateTimeErrorCodeEnum.endTimeBeforeStartTime.getErrorCode() , DateTimeErrorCodeEnum.endTimeBeforeStartTime.getErrorDescription()));
         if(! DateUtil.dayOfMonthValidation(dto.getDayOfMonth()))
             responses.add(new Response(DateTimeErrorCodeEnum.dateNotValid.getErrorCode() ,DateTimeErrorCodeEnum.dateNotValid.getErrorDescription()));
+        if(DateUtil.equalsTime(dto.getStartTime(),dto.getEndTime()))
+            responses.add(new Response(DateTimeErrorCodeEnum.equalsTime.getErrorCode() ,DateTimeErrorCodeEnum.equalsTime.getErrorDescription()));
         return responses.size() == 0;
     }
 }

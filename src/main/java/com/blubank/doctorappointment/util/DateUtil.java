@@ -11,9 +11,14 @@ public class DateUtil{
     public static boolean dateTimeIsValid(LocalTime startTime , LocalTime endTime){
 
         return startTime.isAfter(LocalTime.of(0 , 0)) && endTime.isBefore(LocalTime.of(23 , 59));
-    }   public static boolean timeIsValid(LocalTime startTime , LocalTime endTime){
+    }
+    public static boolean timeIsValid(LocalTime startTime , LocalTime endTime){
 
         return  !startTime.isAfter(endTime);
+    }
+    public static boolean equalsTime(LocalTime startTime , LocalTime endTime){
+
+        return  startTime ==endTime;
     }
 
     public static boolean dateTimeIsValid(LocalTime time){
