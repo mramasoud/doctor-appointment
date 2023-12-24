@@ -7,6 +7,7 @@ import lombok.Getter;
 public enum DateTimeErrorCodeEnum{
     dateNotValid(101,"day of month not valid ,please enter day between 1 and 31 "),
     timeNotValid(102, "Time in day not valid, please enter time between 00:00 and 23:59"),
+    endTimeBeforeStartTime(102, "endTime is before afterTime"),
     startTimeNotValid(102,"start time is not valid, please enter time between 00:00 and 23:59"),
     endTimeNotValid(102, "end time is not valid, please enter time between 00:00 and 23:59");
 
