@@ -88,6 +88,10 @@ public class DoctorService{
         }
         return timePeriods;
     }
+    public Response deleteAppointment(int appointmentNumber,String doctorName,int day){
+        Doctor doctor = doctorRepository.findByName(doctorName);
+        return appointmentService.deleteAppointment(doctor,appointmentNumber,day);
+    }
 
 
 }
