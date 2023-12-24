@@ -1,6 +1,5 @@
 package com.blubank.doctorappointment.controller;
 
-import com.blubank.doctorappointment.dto.DoctorAppointmentViewDTO;
 import com.blubank.doctorappointment.dto.DoctorAvailabilityDTO;
 import com.blubank.doctorappointment.dto.DoctorDTO;
 import com.blubank.doctorappointment.response.DoctorAppointmentViewResponse;
@@ -34,9 +33,9 @@ public class DoctorController{
         }
     }
 
-    @PostMapping("/appointmentView")
-    public ResponseEntity<List<DoctorAppointmentViewResponse>> getEmptyAppointmentTime(@RequestBody DoctorAppointmentViewDTO dto){
-        return new ResponseEntity<>(doctorService.showDoctorOpenAppointment(dto) , HttpStatus.ACCEPTED);
+    @GetMapping("/appointments/view/{doctorName}/{day}")
+    public ResponseEntity<List<DoctorAppointmentViewResponse>> getEmptyAppointmentTime(@PathVariable String doctorName , @PathVariable int day){
+        return new ResponseEntity<>(doctorService.showDoctorFreeAppointments(doctorName,day) , HttpStatus.ACCEPTED);
     }
 
     @PostMapping("/addDoctor")
