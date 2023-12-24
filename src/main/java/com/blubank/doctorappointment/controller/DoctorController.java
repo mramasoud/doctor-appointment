@@ -38,11 +38,11 @@ public class DoctorController{
         return new ResponseEntity<>(doctorService.showDoctorFreeAppointments(doctorName,day) , HttpStatus.ACCEPTED);
     }
 
-    @PostMapping("/addDoctor")
+    @PostMapping("/add")
     public ResponseEntity<Response> addNewDoctor(@RequestBody DoctorDTO dto){
         return new ResponseEntity<>(doctorService.addDoctor(dto) , HttpStatus.OK);
     }
-    @DeleteMapping("delete/{number}/{name}/{day}")
+    @DeleteMapping("/delete/{number}/{name}/{day}")
     public ResponseEntity<Response> deleteAppointment(@PathVariable int number , @PathVariable String name , @PathVariable int day){
         return new ResponseEntity<>(doctorService.deleteAppointment(number , name , day) , HttpStatus.OK);
     }
