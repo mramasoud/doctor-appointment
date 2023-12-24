@@ -43,8 +43,11 @@ public class DoctorService{
             return responses;
         }
         try{
-            saveDoctorAvailableTime(getAvailableTimePeriods(dto.getDayOfMonth() , dto.getStartTime() , dto.getEndTime() , doctor));
-            responses.add(new Response(DoctorCodeProjectEnum.appointmentSaved.getErrorCode() , DoctorCodeProjectEnum.appointmentSaved.getErrorDescription()));
+            List<Appointment> availableTimePeriods = getAvailableTimePeriods(dto.getDayOfMonth() , dto.getStartTime() , dto.getEndTime() , doctor);
+            if(availableTimePeriods.size()==0)
+                responses.add(new Response(DoctorCodeProjectEnum.appointmentSaved.getErrorCode() , DoctorCodeProjectEnum.appointmentSaved.getErrorDescription()));
+            saveDoctorAvailableTime(availableTimePeriods);
+            responses.add(new Response(DoctorCodeProjectEnum.appointmentSaved.getErrorCode() , availableTimePeriods.size()+DoctorCodeProjectEnum.appointmentSaved.getErrorDescription()));
             return responses;
         }catch(Exception exception){
             responses.add(new Response(DoctorCodeProjectEnum.serverError.getErrorCode() , DoctorCodeProjectEnum.serverError.getErrorDescription()));
