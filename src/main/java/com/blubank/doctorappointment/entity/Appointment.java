@@ -7,11 +7,10 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.persistence.*;
-import java.sql.Date;
-import java.time.LocalDate;
+import java.util.Date;
 
 @Entity
-@Table(name ="APPOINTMENT")
+@Table(name = "APPOINTMENT")
 @Getter
 @Setter
 @NoArgsConstructor
@@ -25,6 +24,8 @@ public class Appointment {
     @Column
     private Date endTime;
     @Column
+    private Integer dayOfMonth;
+    @Column
     private AppointmentStatus status;
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "doctor_id")
@@ -32,4 +33,12 @@ public class Appointment {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "patient_id")
     private Patient patient;
+
+    public Appointment(Date startTime , Date endTime , Integer dayOfMonth , AppointmentStatus status , Doctor doctor){
+        this.startTime = startTime;
+        this.endTime = endTime;
+        this.dayOfMonth = dayOfMonth;
+        this.status = status;
+        this.doctor = doctor;
+    }
 }
