@@ -1,11 +1,15 @@
-package com.blubank.doctorappointment.enumbration;
+package com.blubank.doctorappointment.ordinal;
 
 import lombok.Getter;
 
 @Getter
-public enum DoctorCodeProjectEnum{
+public enum CodeProjectEnum{
     doctorNotFound(404,"doctor not found"),
-    appointmentSaved(200,"is time period appointments have been created."),
+    AppointmentNotFound(404,"Appointment not found"),
+    appointmentSaved(200,"time period appointments have been created."),
+    appointmentReserved(406,"cannot delete appointment because appointment is reserving."),
+    doctorSaved(200,"doctor have been created."),
+    appointmentDeleted(200,"appointment have been deleted."),
     appointmentNotSaved(200,"A 30-minute time period was not found on a working day."),
     serverError(500,"serverError");
 
@@ -13,7 +17,7 @@ public enum DoctorCodeProjectEnum{
     private int errorCode;
     private String errorDescription;
 
-    DoctorCodeProjectEnum(int errorCode , String errorDescription){
+    CodeProjectEnum(int errorCode , String errorDescription){
         this.errorCode = errorCode;
         this.errorDescription = errorDescription;
     }

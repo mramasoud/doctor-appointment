@@ -3,7 +3,6 @@ package com.blubank.doctorappointment.entity;
 import lombok.*;
 
 import javax.persistence.*;
-import java.util.List;
 
 @Entity
 @Table(name ="PATIENT")
@@ -14,7 +13,7 @@ import java.util.List;
 public class Patient {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long patients_Id;
+    private Long patientsId;
     @Column
     private String name;
     @Column

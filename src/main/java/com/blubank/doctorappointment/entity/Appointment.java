@@ -1,6 +1,6 @@
 package com.blubank.doctorappointment.entity;
 
-import com.blubank.doctorappointment.enumbration.AppointmentStatus;
+import com.blubank.doctorappointment.ordinal.AppointmentStatus;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -18,7 +18,7 @@ import java.util.Date;
 public class Appointment {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long appointments_Id;
+    private Long appointmentsId;
     @Column
     private Date startTime;
     @Column

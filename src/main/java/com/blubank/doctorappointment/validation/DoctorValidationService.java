@@ -1,7 +1,7 @@
 package com.blubank.doctorappointment.validation;
 
 import com.blubank.doctorappointment.dto.DoctorAvailabilityDTO;
-import com.blubank.doctorappointment.enumbration.DateTimeErrorCodeEnum;
+import com.blubank.doctorappointment.ordinal.DateTimeErrorCodeEnum;
 import com.blubank.doctorappointment.response.Response;
 import com.blubank.doctorappointment.util.DateUtil;
 import org.springframework.stereotype.Service;
