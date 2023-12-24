@@ -45,7 +45,7 @@ public class DoctorService{
         try{
             List<Appointment> availableTimePeriods = getAvailableTimePeriods(dto.getDayOfMonth() , dto.getStartTime() , dto.getEndTime() , doctor);
             if(availableTimePeriods.size() == 0){
-                responses.add(new Response(DoctorCodeProjectEnum.appointmentSaved.getErrorCode() , DoctorCodeProjectEnum.appointmentSaved.getErrorDescription()));
+                responses.add(new Response(DoctorCodeProjectEnum.appointmentNotSaved.getErrorCode() , DoctorCodeProjectEnum.appointmentNotSaved.getErrorDescription()));
                 return responses;
             }
             saveDoctorAvailableTime(availableTimePeriods);
