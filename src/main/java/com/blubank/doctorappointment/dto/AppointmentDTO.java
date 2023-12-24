@@ -1,10 +1,8 @@
 package com.blubank.doctorappointment.dto;
 
-import com.blubank.doctorappointment.enumbration.AppointmentStatus;
+import com.blubank.doctorappointment.ordinal.AppointmentStatus;
 import lombok.Data;
 
-import java.time.LocalDate;
-import java.time.LocalTime;
 import java.util.Date;
 
 @Data

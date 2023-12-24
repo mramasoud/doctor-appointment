@@ -1,6 +1,6 @@
 package com.blubank.doctorappointment.entity;
 
-import com.blubank.doctorappointment.enumbration.AppointmentStatus;
+import com.blubank.doctorappointment.ordinal.AppointmentStatus;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

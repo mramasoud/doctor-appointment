@@ -1,4 +1,4 @@
-package com.blubank.doctorappointment.enumbration;
+package com.blubank.doctorappointment.ordinal;
 
 import lombok.Getter;
 
