@@ -1,17 +1,16 @@
 package com.blubank.doctorappointment.controller;
 
+import com.blubank.doctorappointment.dto.DoctorAppointmentViewDTO;
 import com.blubank.doctorappointment.dto.DoctorAvailabilityDTO;
 import com.blubank.doctorappointment.dto.DoctorDTO;
+import com.blubank.doctorappointment.response.DoctorAppointmentViewResponse;
 import com.blubank.doctorappointment.response.Response;
 import com.blubank.doctorappointment.service.DoctorService;
 import com.blubank.doctorappointment.validation.ValidationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -33,6 +32,11 @@ public class DoctorController{
             List<Response> responseList = doctorService.addDoctorAvailableTimes(dto , responses);
             return new ResponseEntity<>(responseList,HttpStatus.ACCEPTED);
         }
+    }
+
+    @PostMapping("/appointment-view")
+    public ResponseEntity<List<DoctorAppointmentViewResponse>> getEmployeesById(@RequestBody DoctorAppointmentViewDTO dto) {
+        return new ResponseEntity<>(doctorService.showDoctorOpenAppointment(dto),HttpStatus.ACCEPTED);
     }
 
 
