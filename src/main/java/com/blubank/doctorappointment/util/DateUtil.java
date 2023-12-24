@@ -1,5 +1,6 @@
 package com.blubank.doctorappointment.util;
 
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -32,5 +33,11 @@ public class DateUtil{
         ZonedDateTime dateTime = ZonedDateTime.now(ZoneId.systemDefault()).with(time);
         return Date.from(dateTime.toInstant());
     }
+    public static LocalTime dateConvertor(Date time){
+        LocalDateTime localDateTime = LocalDateTime.ofInstant(time.toInstant(), ZoneId.systemDefault());
+        return localDateTime.toLocalTime();
+    }
+
+
 
 }
