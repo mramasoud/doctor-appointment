@@ -6,15 +6,15 @@ import lombok.Data;
 import java.time.LocalTime;
 
 @Data
-public class DoctorAvailabilityDTO {
+public class DoctorAvailabilityDTO extends AbaseDto{
     private String doctorName;
-    private int dayOfMonth; // The day of the month
+    private int dayOfMonth;
     @JsonFormat(pattern = "HH:mm")
-    private LocalTime startTime; // The start time for the day
+    private LocalTime startTime;
     @JsonFormat(pattern = "HH:mm")
-    private LocalTime endTime; // The end time for the day
+    private LocalTime endTime;
 
-    public DoctorAvailabilityDTO(int dayOfMonth, LocalTime startTime, LocalTime endTime) {
+    public DoctorAvailabilityDTO(int dayOfMonth , LocalTime startTime , LocalTime endTime){
         this.dayOfMonth = dayOfMonth;
         this.startTime = startTime;
         this.endTime = endTime;

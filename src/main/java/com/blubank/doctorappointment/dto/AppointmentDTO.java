@@ -16,4 +16,12 @@ public class AppointmentDTO {
     private PatientDTO patientDTO;
     private DoctorDTO doctorDTO;
     private AppointmentStatus status;
+
+    public AppointmentDTO( Integer dayOfMonth ,Date startTime , Date endTime , AppointmentStatus status, DoctorDTO doctorDTO ){
+        this.startTime = startTime;
+        this.endTime = endTime;
+        this.dayOfMonth = dayOfMonth;
+        this.doctorDTO = doctorDTO;
+        this.status = status;
+    }
 }
