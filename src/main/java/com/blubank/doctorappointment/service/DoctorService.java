@@ -1,13 +1,14 @@
 package com.blubank.doctorappointment.service;
 
+import com.blubank.doctorappointment.dto.DoctorAppointmentViewDTO;
 import com.blubank.doctorappointment.dto.DoctorAvailabilityDTO;
 import com.blubank.doctorappointment.dto.DoctorDTO;
 import com.blubank.doctorappointment.entity.Appointment;
 import com.blubank.doctorappointment.entity.Doctor;
-import com.blubank.doctorappointment.enumbration.AppointmentStatus;
-import com.blubank.doctorappointment.enumbration.DoctorCodeProjectEnum;
-import com.blubank.doctorappointment.repository.AppointmentRepository;
+import com.blubank.doctorappointment.ordinal.AppointmentStatus;
+import com.blubank.doctorappointment.ordinal.DoctorCodeProjectEnum;
 import com.blubank.doctorappointment.repository.DoctorRepository;
+import com.blubank.doctorappointment.response.DoctorAppointmentViewResponse;
 import com.blubank.doctorappointment.response.Response;
 import com.blubank.doctorappointment.util.DateUtil;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,7 +25,7 @@ public class DoctorService{
     @Autowired
     private DoctorRepository doctorRepository;
     @Autowired
-    private AppointmentRepository appointmentRepository;
+    AppointmentService appointmentService;
     private static final int timePeriods_Min = 30;
 
     public ResponseEntity<String> addDoctor(DoctorDTO dto){
@@ -49,7 +50,7 @@ public class DoctorService{
                 return responses;
             }
             saveDoctorAvailableTime(availableTimePeriods);
-            responses.add(new Response(DoctorCodeProjectEnum.appointmentSaved.getErrorCode() , availableTimePeriods.size()+DoctorCodeProjectEnum.appointmentSaved.getErrorDescription()));
+            responses.add(new Response(DoctorCodeProjectEnum.appointmentSaved.getErrorCode() , availableTimePeriods.size() + DoctorCodeProjectEnum.appointmentSaved.getErrorDescription()));
             return responses;
         }catch(Exception exception){
             responses.add(new Response(DoctorCodeProjectEnum.serverError.getErrorCode() , DoctorCodeProjectEnum.serverError.getErrorDescription()));
@@ -57,12 +58,22 @@ public class DoctorService{
         }
     }
 
-
-    private void saveDoctorAvailableTime(List<Appointment> availableTimePeriods){
-        appointmentRepository.saveAll(availableTimePeriods);
+    public List<DoctorAppointmentViewResponse> showDoctorOpenAppointment(DoctorAppointmentViewDTO dto){
+        Doctor doctor = doctorRepository.findByName(dto.getDoctorName());
+        List<Appointment> appointmentByDoctor = appointmentService.findEmptyAppointmentByDoctor(doctor , dto.getDayOfMonth());
+        List<DoctorAppointmentViewResponse> responses = new ArrayList<>();
+        for(Appointment appointment : appointmentByDoctor){
+            responses.add(new DoctorAppointmentViewResponse(appointment.getAppointments_Id() , DateUtil.dateConvertor(appointment.getStartTime()) , DateUtil.dateConvertor(appointment.getEndTime())));
+        }
+        return responses;
     }
 
-    public static List<Appointment> getAvailableTimePeriods(int dayOfMonth , LocalTime startTime , LocalTime endTime , Doctor doctor){
+
+    private void saveDoctorAvailableTime(List<Appointment> availableTimePeriods){
+        appointmentService.saveAppointment(availableTimePeriods);
+    }
+
+    private List<Appointment> getAvailableTimePeriods(int dayOfMonth , LocalTime startTime , LocalTime endTime , Doctor doctor){
         List<Appointment> timePeriods = new ArrayList<>();
         LocalTime current = startTime;
 
@@ -70,7 +81,7 @@ public class DoctorService{
             LocalTime next = current.plusMinutes(timePeriods_Min);
             if(next.isAfter(endTime))
                 break;
-            timePeriods.add(new Appointment(DateUtil.dateConvertor(current) , DateUtil.dateConvertor(endTime) , dayOfMonth , AppointmentStatus.empty , doctor));
+            timePeriods.add(new Appointment(DateUtil.dateConvertor(current) , DateUtil.dateConvertor(next) , dayOfMonth , AppointmentStatus.empty , doctor));
             current = next;
         }
         return timePeriods;
