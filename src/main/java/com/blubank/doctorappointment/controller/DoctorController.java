@@ -26,22 +26,21 @@ public class DoctorController{
     @PostMapping("/time")
     public ResponseEntity<List<Response>> DoctorAvailableTime(@RequestBody DoctorAvailabilityDTO dto){
         List<Response> responses = new ArrayList<>();
-        if(!doctorValidationService.validate(dto , responses)){
+        if(! doctorValidationService.validate(dto , responses)){
             return new ResponseEntity<>(responses , HttpStatus.NOT_ACCEPTABLE);
         }else{
             List<Response> responseList = doctorService.addDoctorAvailableTimes(dto , responses);
-            return new ResponseEntity<>(responseList,HttpStatus.ACCEPTED);
+            return new ResponseEntity<>(responseList , HttpStatus.ACCEPTED);
         }
     }
 
-    @PostMapping("/appointment-view")
-    public ResponseEntity<List<DoctorAppointmentViewResponse>> getEmployeesById(@RequestBody DoctorAppointmentViewDTO dto) {
-        return new ResponseEntity<>(doctorService.showDoctorOpenAppointment(dto),HttpStatus.ACCEPTED);
+    @PostMapping("/appointmentView")
+    public ResponseEntity<List<DoctorAppointmentViewResponse>> getEmptyAppointmentTime(@RequestBody DoctorAppointmentViewDTO dto){
+        return new ResponseEntity<>(doctorService.showDoctorOpenAppointment(dto) , HttpStatus.ACCEPTED);
     }
 
-
     @PostMapping("/addDoctor")
-    public ResponseEntity<String> addNewDoctor(@RequestBody DoctorDTO dto){
-        return doctorService.addDoctor(dto);
+    public ResponseEntity<Response> addNewDoctor(@RequestBody DoctorDTO dto){
+        return new ResponseEntity<>(doctorService.addDoctor(dto) , HttpStatus.OK);
     }
 }

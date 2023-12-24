@@ -3,7 +3,9 @@ package com.blubank.doctorappointment.service;
 import com.blubank.doctorappointment.entity.Appointment;
 import com.blubank.doctorappointment.entity.Doctor;
 import com.blubank.doctorappointment.ordinal.AppointmentStatus;
+import com.blubank.doctorappointment.ordinal.CodeProjectEnum;
 import com.blubank.doctorappointment.repository.AppointmentRepository;
+import com.blubank.doctorappointment.response.Response;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -25,7 +27,9 @@ public class AppointmentService{
     }
 
 
-    public List<Appointment> findEmptyAppointmentByDoctor(Doctor doctor,int day){
-        return appointmentRepository.findByDoctorAndStatusAndDayOfMonth(doctor, AppointmentStatus.empty,day);
+    public List<Appointment> findEmptyAppointmentByDoctor(Doctor doctor , int day){
+        return appointmentRepository.findByDoctorAndStatusNotAndDayOfMonthOrderByAppointmentsId(doctor , AppointmentStatus.reserved , day);
     }
+
+
 }
