@@ -17,8 +17,7 @@ public class DateUtil{
         return  !startTime.isAfter(endTime);
     }
     public static boolean equalsTime(LocalTime startTime , LocalTime endTime){
-
-        return  startTime ==endTime;
+        return startTime.equals(endTime);
     }
 
     public static boolean dateTimeIsValid(LocalTime time){
