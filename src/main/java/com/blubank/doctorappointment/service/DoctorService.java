@@ -37,7 +37,7 @@ public class DoctorService{
         }
     }
 
-    public List<Response> addDoctorAvailableTimes(DoctorAvailabilityDTO dto , List<Response> responses){
+    public List<Response> setDoctorDailyWorkSchedule(DoctorAvailabilityDTO dto , List<Response> responses){
         Doctor doctor = doctorRepository.findByName(dto.getDoctorName());
         if(doctor == null){
             responses.add(new Response(CodeProjectEnum.doctorNotFound.getErrorCode() , CodeProjectEnum.doctorNotFound.getErrorDescription()));

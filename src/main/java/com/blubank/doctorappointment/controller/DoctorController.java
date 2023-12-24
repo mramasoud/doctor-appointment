@@ -15,20 +15,20 @@ import java.util.ArrayList;
 import java.util.List;
 
 @RestController
-@RequestMapping("/doctor")
+@RequestMapping("/api/v1/doctor")
 public class DoctorController{
     @Autowired
     private DoctorService doctorService;
     @Autowired
     private ValidationService<DoctorAvailabilityDTO> doctorValidationService;
 
-    @PostMapping("/time")
-    public ResponseEntity<List<Response>> DoctorAvailableTime(@RequestBody DoctorAvailabilityDTO dto){
+    @PostMapping("/workTime")
+    public ResponseEntity<List<Response>> doctorDailySchedule(@RequestBody DoctorAvailabilityDTO dto){
         List<Response> responses = new ArrayList<>();
         if(! doctorValidationService.validate(dto , responses)){
             return new ResponseEntity<>(responses , HttpStatus.NOT_ACCEPTABLE);
         }else{
-            List<Response> responseList = doctorService.addDoctorAvailableTimes(dto , responses);
+            List<Response> responseList = doctorService.setDoctorDailyWorkSchedule(dto , responses);
             return new ResponseEntity<>(responseList , HttpStatus.ACCEPTED);
         }
     }
