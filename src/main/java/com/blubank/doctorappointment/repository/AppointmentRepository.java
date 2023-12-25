@@ -9,6 +9,6 @@ import javax.print.Doc;
 import java.util.List;
 
 public interface AppointmentRepository extends JpaRepository<Appointment,Long>{
-    List<Appointment> findByDoctorAndStatusNotAndDayOfMonthOrderByAppointmentsId(Doctor doctor, AppointmentStatus status,int day);
+    List<Appointment> findByDoctorAndDayOfMonthOrderByAppointmentsId(Doctor doctor,int day);
 
 }

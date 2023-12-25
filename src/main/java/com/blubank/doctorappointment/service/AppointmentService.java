@@ -28,8 +28,22 @@ public class AppointmentService{
 
 
     public List<Appointment> findEmptyAppointmentByDoctor(Doctor doctor , int day){
-        return appointmentRepository.findByDoctorAndStatusNotAndDayOfMonthOrderByAppointmentsId(doctor , AppointmentStatus.reserved , day);
+        return appointmentRepository.findByDoctorAndDayOfMonthOrderByAppointmentsId(doctor , day);
     }
 
-
+    public Response deleteAppointment(Doctor doctor , int appointmentNumber , int day){
+        List<Appointment> appointments = findEmptyAppointmentByDoctor(doctor , day);
+        if(appointments.isEmpty() || appointmentNumber < 1 || appointmentNumber > appointments.size()){
+            return new Response(CodeProjectEnum.AppointmentNotFound.getErrorCode() , CodeProjectEnum.AppointmentNotFound.getErrorDescription());
+        }
+        Appointment appointment = appointments.get(appointmentNumber - 1);
+        if(appointment.getStatus() == AppointmentStatus.reserving){
+            return new Response(CodeProjectEnum.appointmentReserved.getErrorCode() , CodeProjectEnum.appointmentReserved.getErrorDescription());
+        }
+        if(appointment.getStatus() == AppointmentStatus.reserved){
+            return new Response(CodeProjectEnum.appointmentReserved.getErrorCode() , CodeProjectEnum.appointmentReserved.getErrorDescription());
+        }
+        appointmentRepository.delete(appointment);
+        return new Response(CodeProjectEnum.appointmentDeleted.getErrorCode() , CodeProjectEnum.appointmentDeleted.getErrorDescription());
+    }
 }

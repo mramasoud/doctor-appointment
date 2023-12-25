@@ -1,10 +1,10 @@
 package com.blubank.doctorappointment.service;
 
-import com.blubank.doctorappointment.dto.DoctorAppointmentViewDTO;
 import com.blubank.doctorappointment.dto.DoctorAvailabilityDTO;
 import com.blubank.doctorappointment.dto.DoctorDTO;
 import com.blubank.doctorappointment.entity.Appointment;
 import com.blubank.doctorappointment.entity.Doctor;
+import com.blubank.doctorappointment.entity.Patient;
 import com.blubank.doctorappointment.ordinal.AppointmentStatus;
 import com.blubank.doctorappointment.ordinal.CodeProjectEnum;
 import com.blubank.doctorappointment.repository.DoctorRepository;
@@ -12,13 +12,13 @@ import com.blubank.doctorappointment.response.DoctorAppointmentViewResponse;
 import com.blubank.doctorappointment.response.Response;
 import com.blubank.doctorappointment.util.DateUtil;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class DoctorService{
@@ -37,7 +37,7 @@ public class DoctorService{
         }
     }
 
-    public List<Response> addDoctorAvailableTimes(DoctorAvailabilityDTO dto , List<Response> responses){
+    public List<Response> setDoctorDailyWorkSchedule(DoctorAvailabilityDTO dto , List<Response> responses){
         Doctor doctor = doctorRepository.findByName(dto.getDoctorName());
         if(doctor == null){
             responses.add(new Response(CodeProjectEnum.doctorNotFound.getErrorCode() , CodeProjectEnum.doctorNotFound.getErrorDescription()));
@@ -57,19 +57,25 @@ public class DoctorService{
             return responses;
         }
     }
-
-    public List<DoctorAppointmentViewResponse> showDoctorOpenAppointment(DoctorAppointmentViewDTO dto){
-        Doctor doctor = doctorRepository.findByName(dto.getDoctorName());
-        List<Appointment> appointmentByDoctor = appointmentService.findEmptyAppointmentByDoctor(doctor , dto.getDayOfMonth());
-        List<DoctorAppointmentViewResponse> responses = new ArrayList<>();
-        long counter= 1;
-        for(Appointment appointment : appointmentByDoctor){
-            responses.add(new DoctorAppointmentViewResponse(counter , DateUtil.dateConvertor(appointment.getStartTime()) , DateUtil.dateConvertor(appointment.getEndTime())));
-            counter++;
-        }
-        return responses;
-    }
-
+   public List<DoctorAppointmentViewResponse> showDoctorFreeAppointments(String doctorName, int day) {
+       Doctor doctor = doctorRepository.findByName(doctorName);
+       List<Appointment> appointments = appointmentService.findEmptyAppointmentByDoctor(doctor, day);
+       return appointments.stream()
+               .map(appointment -> {
+                   DoctorAppointmentViewResponse response = new DoctorAppointmentViewResponse();
+                   response.setDigit(appointments.indexOf(appointment) + 1L);
+                   response.setStartTime(DateUtil.dateConvertor(appointment.getStartTime()));
+                   response.setEndTime(DateUtil.dateConvertor(appointment.getEndTime()));
+                   response.setStatus(appointment.getStatus());
+                   Optional<Patient> patient = Optional.ofNullable(appointment.getPatient());
+                   patient.ifPresent(p -> {
+                       response.setPatientName(p.getName());
+                       response.setPatientPhoneNumber(p.getPhoneNumber());
+                   });
+                   return response;
+               })
+               .collect(Collectors.toList());
+   }
 
     private void saveDoctorAvailableTime(List<Appointment> availableTimePeriods){
         appointmentService.saveAppointment(availableTimePeriods);
@@ -87,6 +93,10 @@ public class DoctorService{
             current = next;
         }
         return timePeriods;
+    }
+    public Response deleteAppointment(int appointmentNumber,String doctorName,int day){
+        Doctor doctor = doctorRepository.findByName(doctorName);
+        return appointmentService.deleteAppointment(doctor,appointmentNumber,day);
     }
 
 
