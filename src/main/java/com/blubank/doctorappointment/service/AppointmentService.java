@@ -2,6 +2,7 @@ package com.blubank.doctorappointment.service;
 
 import com.blubank.doctorappointment.entity.Appointment;
 import com.blubank.doctorappointment.entity.Doctor;
+import com.blubank.doctorappointment.entity.Patient;
 import com.blubank.doctorappointment.ordinal.AppointmentStatus;
 import com.blubank.doctorappointment.ordinal.CodeProjectEnum;
 import com.blubank.doctorappointment.repository.AppointmentRepository;
@@ -22,17 +23,24 @@ public class AppointmentService{
         appointmentRepository.saveAll(availableTimePeriods);
     }
 
-    public void saveAppointment(Appointment availableTimePeriod){
-        appointmentRepository.save(availableTimePeriod);
+    public Appointment saveAppointment(Appointment availableTimePeriod){
+        return appointmentRepository.save(availableTimePeriod);
     }
 
+    public List<Appointment> findAppointmentByPatientPhone(Patient patient){
+        return appointmentRepository.findByPatientAndStatus(patient , AppointmentStatus.reserved);
+    }
 
-    public List<Appointment> findEmptyAppointmentByDoctor(Doctor doctor , int day){
+    public List<Appointment> findFreeAppointmentByDoctor(Doctor doctor , int day){
         return appointmentRepository.findByDoctorAndDayOfMonthOrderByAppointmentsId(doctor , day);
     }
 
+    public List<Appointment> findEmptyAppointmentByDoctor(Doctor doctor , int day){
+        return appointmentRepository.findByDoctorAndDayOfMonthAndStatusOrderByAppointmentsId(doctor , day , AppointmentStatus.empty);
+    }
+
     public Response deleteAppointment(Doctor doctor , int appointmentNumber , int day){
-        List<Appointment> appointments = findEmptyAppointmentByDoctor(doctor , day);
+        List<Appointment> appointments = findFreeAppointmentByDoctor(doctor , day);
         if(appointments.isEmpty() || appointmentNumber < 1 || appointmentNumber > appointments.size()){
             return new Response(CodeProjectEnum.AppointmentNotFound.getErrorCode() , CodeProjectEnum.AppointmentNotFound.getErrorDescription());
         }

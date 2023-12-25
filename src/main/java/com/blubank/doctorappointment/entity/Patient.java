@@ -19,4 +19,8 @@ public class Patient {
     @Column
     private String phoneNumber;
 
+    public Patient(String name , String phoneNumber){
+        this.name = name;
+        this.phoneNumber = phoneNumber;
+    }
 }
