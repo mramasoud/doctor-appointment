@@ -35,6 +35,6 @@ public class AppConfig {
 
     @Bean
     public ConsoleUI consoleUI() {
-        return new ConsoleUI(patientService(), appointmentService(),doctorService(),validationService());
+        return new ConsoleUI(patientService(),doctorService(),validationService());
     }
 }
