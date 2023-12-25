@@ -3,13 +3,16 @@ package com.blubank.doctorappointment.ui;
 import com.blubank.doctorappointment.dto.DoctorAvailabilityDTO;
 import com.blubank.doctorappointment.dto.DoctorDTO;
 import com.blubank.doctorappointment.dto.PatientReserveAppointmentDTO;
+import com.blubank.doctorappointment.entity.Appointment;
 import com.blubank.doctorappointment.response.DoctorAppointmentViewResponse;
 import com.blubank.doctorappointment.response.Response;
 import com.blubank.doctorappointment.service.AppointmentService;
 import com.blubank.doctorappointment.service.DoctorService;
 import com.blubank.doctorappointment.service.PatientService;
+import com.blubank.doctorappointment.util.DateUtil;
 import com.blubank.doctorappointment.validation.ValidationService;
 
+import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -95,7 +98,7 @@ public class ConsoleUI{
                     }else{
                         System.out.println("Available appointments:");
                         for(DoctorAppointmentViewResponse appointment : availableAppointments){
-                            System.out.println("Available appointment  Time is : " + appointment.getStartTime() +" endTime: "+ appointment.getEndTime() +" status: "+ appointment.getStatus()  );
+                            System.out.println("Available appointment  Time is : " + DateUtil.dateConvertor(appointment.getStartTime()) +" endTime: "+ DateUtil.dateConvertor(appointment.getEndTime()) +" status: "+ appointment.getStatus()  );
                         }
                     }
                     break;
@@ -125,8 +128,8 @@ public class ConsoleUI{
             // Patient Interface
             System.out.println("Patient Menu:");
             System.out.println("1. View Doctor's Free Appointments");
-            System.out.println("2. View Patient's Appointments");
-            System.out.println("3. Reserve an Appointment");
+            System.out.println("2. Reserve an Appointment");
+            System.out.println("3. View Patient's Appointments");
 
             System.out.println("Enter your choice: ");
             int patientChoice = scanner.nextInt();
@@ -144,31 +147,13 @@ public class ConsoleUI{
                     }else{
                         System.out.println("Available appointments:");
                         for(DoctorAppointmentViewResponse appointment : availableAppointments){
-                            System.out.println(appointment);
+                            System.out.println("startTime : "+DateUtil.dateConvertor(appointment.getStartTime() )+" endTime: "+DateUtil.dateConvertor( appointment.getEndTime()) +" status: "+ appointment.getStatus()  );
                         }
                     }
                     break;
+
                 case 2:
-                    System.out.println("Enter your phoneNumber:");
-                    String phoneNumber = scanner.next();
-                    List<DoctorAppointmentViewResponse> patientAppointments = patientService.findAppointmentByPatient(phoneNumber);
-                    if(patientAppointments.isEmpty()){
-                        System.out.println("No appointments found for the specified patient.");
-                    }else{
-                        System.out.println("Appointments:");
-                        for(DoctorAppointmentViewResponse appointment : patientAppointments){
-                            System.out.println("your appointment  Time is : " + "startTime : "+appointment.getStartTime() +" endTime: "+ appointment.getEndTime() +" status: "+ appointment.getStatus()  );
-                        }
-                    }
-                    break;
-                case 3:
                     PatientReserveAppointmentDTO appointmentRequest = new PatientReserveAppointmentDTO();
-                    System.out.println("Enter patient name:");
-                    String patientName = scanner.next();
-                    appointmentRequest.setName(patientName);
-                    System.out.println("Enter patient phone number:");
-                    String patientPhoneNumber = scanner.next();
-                    appointmentRequest.setPhoneNumber(patientPhoneNumber);
                     System.out.println("Enter doctor name:");
                     String name = scanner.next();
                     appointmentRequest.setDoctorName(name);
@@ -178,11 +163,38 @@ public class ConsoleUI{
                     System.out.println("Enter appointment digit:");
                     int digit = scanner.nextInt();
                     appointmentRequest.setAppointmentDigit(digit);
-                    DoctorAppointmentViewResponse response = patientService.reserveAppointment(appointmentRequest);
+                    Appointment reservingAppointmentForView = patientService.getReservingAppointmentForView(appointmentRequest);
+                    System.out.println("if you appointment time is  : " + DateUtil.dateConvertor(reservingAppointmentForView.getStartTime()) +" endTime: "+ DateUtil.dateConvertor(reservingAppointmentForView.getEndTime()) +" status: "+ reservingAppointmentForView.getStatus());
+                    System.out.println("Do you want to perform? (1 for yes, 0 for no):");
+                    int continueChoice = scanner.nextInt();
+                    if(continueChoice == 0){
+                        break;
+                    }
+                    Long appointmentId = patientService.reservingAppointment(reservingAppointmentForView.getAppointmentsId());
+                    System.out.println("Enter patient name:");
+                    String patientName = scanner.next();
+                    appointmentRequest.setName(patientName);
+                    System.out.println("Enter patient phone number:");
+                    String patientPhoneNumber = scanner.next();
+                    appointmentRequest.setPhoneNumber(patientPhoneNumber);
+                    DoctorAppointmentViewResponse response = patientService.reserveAppointment(appointmentRequest,appointmentId);
                     if(response == null){
                         System.out.println("Appointment reservation failed.");
                     }else{
-                        System.out.println("your appointment reservation Time is success full and your appointment is : " + response.getStartTime() +" endTime: "+ response.getEndTime() +" status: "+ response.getStatus()  );
+                        System.out.println("your appointment reservation Time is success full and your appointment is : " + DateUtil.dateConvertor(response.getStartTime()) +" endTime: "+ DateUtil.dateConvertor(response.getEndTime())+" status: "+ response.getStatus()  );
+                    }
+                    break;
+                case 3:
+                    System.out.println("Enter your phoneNumber:");
+                    String phoneNumber = scanner.next();
+                    List<DoctorAppointmentViewResponse> patientAppointments = patientService.findAppointmentByPatient(phoneNumber);
+                    if(patientAppointments.isEmpty()){
+                        System.out.println("No appointments found for the specified patient.");
+                    }else{
+                        System.out.println("your appointment  Time is :");
+                        for(DoctorAppointmentViewResponse appointment : patientAppointments){
+                            System.out.println("startTime : "+DateUtil.dateConvertor(appointment.getStartTime() )+" endTime: "+DateUtil.dateConvertor( appointment.getEndTime()) +" status: "+ appointment.getStatus()  );
+                        }
                     }
                     break;
                 default:

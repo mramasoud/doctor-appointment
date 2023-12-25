@@ -76,6 +76,31 @@ public class PatientService{
         response.setStatus(appointment.getStatus());
         return response;
     }
+    public Appointment getReservingAppointmentForView(PatientReserveAppointmentDTO dto){
+        Doctor doctor = doctorRepository.findByName(dto.getDoctorName());
+        if(doctor == null){
+            throw new NotFoundException("doctor notfound ");
+        }
+        List<Appointment> appointments = appointmentService.findEmptyAppointmentByDoctor(doctor , dto.getDayOfMonth());
+        if(appointments.isEmpty()){
+            throw new NotFoundException("No free appointments available");
+        }
+        Appointment appointment = appointments.get(dto.getAppointmentDigit() - 1);
+        if(appointment.getStatus() == AppointmentStatus.reserved || appointment.getStatus() == AppointmentStatus.reserving){
+            throw new NotFoundException("No free appointments available");
+        }
+        return appointment;
+    }
+    public Long reservingAppointment(Long id ){
+        Optional<Appointment> appointmentById = appointmentService.findAppointmentById(id);
+        if(appointmentById.isPresent()){
+            appointmentById.get().setStatus(AppointmentStatus.reserving);
+            Appointment appointment = appointmentService.saveAppointment(appointmentById.get());
+            return appointment.getAppointmentsId();
+        }
+        return null;
+    }
+
     public DoctorAppointmentViewResponse reserveAppointment(PatientReserveAppointmentDTO dto){
         Doctor doctor = doctorRepository.findByName(dto.getDoctorName());
         if(doctor == null){
@@ -104,7 +129,24 @@ public class PatientService{
         return response;
     }
 
+    public DoctorAppointmentViewResponse reserveAppointment(PatientReserveAppointmentDTO dto, Long id){
+        DoctorAppointmentViewResponse response = new DoctorAppointmentViewResponse();
+        Optional<Appointment> appointment = appointmentService.findAppointmentById(id);
+        if(appointment.isPresent()){
+            appointment.get().setStatus(AppointmentStatus.reserved);
+            appointment.get().setPatient(addPatient(dto.getName() , dto.getPhoneNumber()));
+            appointmentService.saveAppointment(appointment.get());
+            response.setDigit(1);
+            response.setStartTime(DateUtil.dateConvertor(appointment.get().getStartTime()));
+            response.setEndTime(DateUtil.dateConvertor(appointment.get().getEndTime()));
+            response.setPatientName(dto.getName());
+            response.setPatientPhoneNumber(dto.getPhoneNumber());
+            response.setStatus(appointment.get().getStatus());
+        }
 
+
+        return response;
+    }
     public List<DoctorAppointmentViewResponse> findAppointmentByPatient(String phone){
         Optional<Patient> patient = patientRepository.findByPhoneNumber(phone);
         List<Appointment> appointments;

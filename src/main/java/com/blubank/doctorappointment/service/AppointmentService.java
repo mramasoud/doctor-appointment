@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 
 import java.util.List;
+import java.util.Optional;
 
 
 public class AppointmentService{
@@ -40,6 +41,9 @@ public class AppointmentService{
 
     public List<Appointment> findEmptyAppointmentByDoctor(Doctor doctor , int day){
         return appointmentRepository.findByDoctorAndDayOfMonthAndStatusOrderByAppointmentsId(doctor , day , AppointmentStatus.empty);
+    }
+    Optional<Appointment> findAppointmentById(Long id){
+        return appointmentRepository.findById(id);
     }
 
     public Response deleteAppointment(Doctor doctor , int appointmentNumber , int day){
