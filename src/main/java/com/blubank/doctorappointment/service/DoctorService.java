@@ -29,6 +29,10 @@ public class DoctorService{
     private static final int timePeriods_Min = 30;
 
     public Response addDoctor(DoctorDTO dto){
+        if(doctorRepository.findByName(dto.getName())!=null){
+            throw new IllegalStateException("duplicate" );
+        }
+
         Doctor doctor = doctorRepository.save(new Doctor(dto.getName()));
         if(doctor.getDoctorsId() != null){
             return new Response(CodeProjectEnum.doctorSaved.getErrorCode(),CodeProjectEnum.doctorSaved.getErrorDescription());
@@ -36,12 +40,14 @@ public class DoctorService{
             return new Response(CodeProjectEnum.serverError.getErrorCode(),CodeProjectEnum.serverError.getErrorDescription());
         }
     }
-
     public List<Response> setDoctorDailyWorkSchedule(DoctorAvailabilityDTO dto , List<Response> responses){
         Doctor doctor = doctorRepository.findByName(dto.getDoctorName());
         if(doctor == null){
             responses.add(new Response(CodeProjectEnum.doctorNotFound.getErrorCode() , CodeProjectEnum.doctorNotFound.getErrorDescription()));
             return responses;
+        }
+        if(appointmentService.findFreeAppointmentByDoctor(doctor,dto.getDayOfMonth()).size()!=0){
+            throw new IllegalStateException("duplicate time work in day  : "+ dto.getDayOfMonth() + "please enter some dayOfMonth");
         }
         try{
             List<Appointment> availableTimePeriods = getAvailableTimePeriods(dto.getDayOfMonth() , dto.getStartTime() , dto.getEndTime() , doctor);
@@ -57,9 +63,10 @@ public class DoctorService{
             return responses;
         }
     }
+
    public List<DoctorAppointmentViewResponse> showDoctorFreeAppointments(String doctorName, int day) {
        Doctor doctor = doctorRepository.findByName(doctorName);
-       List<Appointment> appointments = appointmentService.findEmptyAppointmentByDoctor(doctor, day);
+       List<Appointment> appointments = appointmentService.findFreeAppointmentByDoctor(doctor, day);
        return appointments.stream()
                .map(appointment -> {
                    DoctorAppointmentViewResponse response = new DoctorAppointmentViewResponse();
