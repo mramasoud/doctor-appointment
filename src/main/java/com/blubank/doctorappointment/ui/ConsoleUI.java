@@ -6,205 +6,278 @@ import com.blubank.doctorappointment.dto.PatientReserveAppointmentDTO;
 import com.blubank.doctorappointment.entity.Appointment;
 import com.blubank.doctorappointment.response.DoctorAppointmentViewResponse;
 import com.blubank.doctorappointment.response.Response;
-import com.blubank.doctorappointment.service.AppointmentService;
 import com.blubank.doctorappointment.service.DoctorService;
 import com.blubank.doctorappointment.service.PatientService;
 import com.blubank.doctorappointment.util.DateUtil;
 import com.blubank.doctorappointment.validation.ValidationService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
-import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.ResourceBundle;
 import java.util.Scanner;
 
+@Component
+public class ConsoleUI {
 
-public class ConsoleUI{
-    private final PatientService patientService;
-    private final DoctorService doctorService;
-    private final ValidationService<DoctorAvailabilityDTO> doctorValidationService;
+    @Autowired
+    private PatientService patientService;
+    @Autowired
+    private DoctorService doctorService;
+    @Autowired
+    private ValidationService<DoctorAvailabilityDTO> doctorValidationService;
+    ResourceBundle messages = ResourceBundle.getBundle("HospitalMessages");
+    public void run() {
 
-    public ConsoleUI(PatientService patientService  , DoctorService doctorService , ValidationService<DoctorAvailabilityDTO> doctorValidationService){
-        this.patientService = patientService;
-        this.doctorService = doctorService;
-        this.doctorValidationService = doctorValidationService;
-    }
-
-    public void run(){
         Scanner scanner = new Scanner(System.in);
-        System.out.println("Welcome to the Hospital Management System");
-        System.out.println("Are you a doctor or a patient? (1 for doctor, 2 for patient):");
+        System.out.println(messages.getString("welcome"));
+        System.out.println(messages.getString("userPrompt"));
         int userType = scanner.nextInt();
-        if(userType == 1){
+        if (userType == 1) {
             handleDoctorActions(scanner);
-        }else if(userType == 2){
+        } else if (userType == 2) {
             handlePatientActions(scanner);
         }
     }
-
-    private void handleDoctorActions(Scanner scanner){
-        do{
+    private void handleDoctorActions(Scanner scanner) {
+        do {
             // Doctor Interface
-            System.out.println("Doctor Menu:");
-            System.out.println("1. Add a New Doctor");
-            System.out.println("2. Set Doctor Daily Work Schedule");
-            System.out.println("3. View Doctor's Free Appointments");
-            System.out.println("4. Delete Doctor's Appointment");
-            System.out.println("Enter your choice: ");
+            System.out.println(messages.getString("doctorMenu"));
+            System.out.println(messages.getString("addDoctor"));
+            System.out.println(messages.getString("setDoctorSchedule"));
+            System.out.println(messages.getString("viewDoctorAppointments"));
+            System.out.println(messages.getString("deleteDoctorAppointment"));
+            System.out.println(messages.getString("enterChoice"));
             int doctorChoice = scanner.nextInt();
-            switch(doctorChoice){
-
+            switch (doctorChoice) {
                 case 1:
-                    DoctorDTO dto = new DoctorDTO();
-                    System.out.println("Enter doctor name:");
-                    dto.setName(scanner.next());
-                    Response response = doctorService.saveDoctor(dto);
-                    System.out.println(response.getMessage());
+                    addDoctor(scanner);
                     break;
                 case 2:
-                    List<Response> responseList = new ArrayList<>();
-                    DoctorAvailabilityDTO doctorAvailabilityDTO = new DoctorAvailabilityDTO();
-                    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm");
-                    System.out.println("Enter doctor name:");
-                    String doctorName = scanner.next();
-                    doctorAvailabilityDTO.setDoctorName(doctorName);
-                    System.out.println("Enter DayOfMonth:");
-                    int dayOfMonth = scanner.nextInt();
-                    doctorAvailabilityDTO.setDayOfMonth(dayOfMonth);
-                    System.out.println("Enter daily StartTime Work:");
-                    String start = scanner.next();
-                    LocalTime startTime = LocalTime.parse(start , formatter);
-                    doctorAvailabilityDTO.setStartTime(startTime);
-                    System.out.println("Enter daily EndTime Work:");
-                    String end = scanner.next();
-                    LocalTime endTime = LocalTime.parse(end , formatter);
-                    doctorAvailabilityDTO.setEndTime(endTime);
-                    if(doctorValidationService.validate(doctorAvailabilityDTO , responseList)){
-                        doctorService.setDoctorDailyWorkSchedule(doctorAvailabilityDTO , responseList);
-                    }
-                    for(Response res : responseList){
-                        System.out.println(res.getMessage());
-                    }
+                    setDoctorSchedule(scanner);
                     break;
                 case 3:
-                    System.out.println("Enter doctor name:");
-                    String name = scanner.next();
-                    System.out.println("Enter DayOfMonth:");
-                    int day = scanner.nextInt();
-                    List<DoctorAppointmentViewResponse> availableAppointments = doctorService.showDoctorFreeAppointments(name , day);
-                    if(availableAppointments.isEmpty()){
-                        System.out.println("No available appointments found for the specified doctor and day.");
-                    }else{
-                        System.out.println("Available appointments:");
-                        for(DoctorAppointmentViewResponse appointment : availableAppointments){
-                            System.out.println("Available appointment  Time is : " + DateUtil.dateConvertor(appointment.getStartTime()) +" endTime: "+ DateUtil.dateConvertor(appointment.getEndTime()) +" status: "+ appointment.getStatus()  );
-                        }
-                    }
+                    viewDoctorAppointments(scanner);
                     break;
                 case 4:
-                    System.out.println("Enter doctor name:");
-                    String docName = scanner.next();
-                    System.out.println("Enter DayOfMonth:");
-                    int dayNumber = scanner.nextInt();
-                    System.out.println("Enter appointment digit:");
-                    int digit = scanner.nextInt();
-                    Response response1 = doctorService.deleteAppointmentByDoctor(digit , docName , dayNumber);
-                    System.out.println(response1.getMessage());
+                    deleteDoctorAppointment(scanner);
                     break;
                 default:
-                    System.out.println("Invalid choice");
+                    System.out.println(messages.getString("invalidChoice"));
             }
-            System.out.println("Do you want to perform another action? (1 for yes, 0 for no):");
-            int continueChoice = scanner.nextInt();
-            if(continueChoice == 0){
-                break; // Exit the loop and go back to the main doctor menu
-            }
-        }while(true);
+        } while (performAnotherAction(scanner));
     }
-
-    private void handlePatientActions(Scanner scanner){
-        do{
+    private void handlePatientActions(Scanner scanner) {
+        do {
             // Patient Interface
-            System.out.println("Patient Menu:");
-            System.out.println("1. View Doctor's Free Appointments");
-            System.out.println("2. Reserve an Appointment");
-            System.out.println("3. View Patient's Appointments");
-
-            System.out.println("Enter your choice: ");
+            System.out.println(messages.getString("patientMenu"));
+            System.out.println(messages.getString("viewDoctorFreeAppointments"));
+            System.out.println(messages.getString("reserveAppointment"));
+            System.out.println(messages.getString("viewPatientAppointments"));
+            System.out.println(messages.getString("enterChoice"));
             int patientChoice = scanner.nextInt();
-
-            switch(patientChoice){
+            switch (patientChoice) {
                 case 1:
-
-                    System.out.println("Enter doctor name:");
-                    String doctorName = scanner.next();
-                    System.out.println("Enter dayOfMonth :");
-                    int day = scanner.nextInt();
-                    List<DoctorAppointmentViewResponse> availableAppointments = patientService.showDoctorFreeAppointments(doctorName, day);
-                    if(availableAppointments.isEmpty()){
-                        System.out.println("No available appointments found for the specified doctor and day.");
-                    }else{
-                        System.out.println("Available appointments:");
-                        for(DoctorAppointmentViewResponse appointment : availableAppointments){
-                            System.out.println("startTime : "+DateUtil.dateConvertor(appointment.getStartTime() )+" endTime: "+DateUtil.dateConvertor( appointment.getEndTime()) +" status: "+ appointment.getStatus()  );
-                        }
-                    }
+                    viewDoctorFreeAppointments(scanner);
                     break;
-
                 case 2:
-                    PatientReserveAppointmentDTO appointmentRequest = new PatientReserveAppointmentDTO();
-                    System.out.println("Enter doctor name:");
-                    String name = scanner.next();
-                    appointmentRequest.setDoctorName(name);
-                    System.out.println("Enter appointment date:");
-                    int doctorPhoneNumber = scanner.nextInt();
-                    appointmentRequest.setDayOfMonth(doctorPhoneNumber);
-                    System.out.println("Enter appointment digit:");
-                    int digit = scanner.nextInt();
-                    appointmentRequest.setAppointmentDigit(digit);
-                    Appointment reservingAppointmentForView = patientService.getReservingAppointmentForView(appointmentRequest);
-                    System.out.println("if you appointment time is  : " + DateUtil.dateConvertor(reservingAppointmentForView.getStartTime()) +" endTime: "+ DateUtil.dateConvertor(reservingAppointmentForView.getEndTime()) +" status: "+ reservingAppointmentForView.getStatus());
-                    System.out.println("Do you want to perform? (1 for yes, 0 for no):");
-                    int continueChoice = scanner.nextInt();
-                    if(continueChoice == 0){
-                        break;
-                    }
-                    Long appointmentId = patientService.reservingAppointment(reservingAppointmentForView.getAppointmentsId());
-                    System.out.println("Enter patient name:");
-                    String patientName = scanner.next();
-                    appointmentRequest.setName(patientName);
-                    System.out.println("Enter patient phone number:");
-                    String patientPhoneNumber = scanner.next();
-                    appointmentRequest.setPhoneNumber(patientPhoneNumber);
-                    DoctorAppointmentViewResponse response = patientService.reserveAppointment(appointmentRequest,appointmentId);
-                    if(response == null){
-                        System.out.println("Appointment reservation failed.");
-                    }else{
-                        System.out.println("your appointment reservation Time is success full and your appointment is : " + DateUtil.dateConvertor(response.getStartTime()) +" endTime: "+ DateUtil.dateConvertor(response.getEndTime())+" status: "+ response.getStatus()  );
-                    }
+                    reserveAppointment(scanner);
                     break;
                 case 3:
-                    System.out.println("Enter your phoneNumber:");
-                    String phoneNumber = scanner.next();
-                    List<DoctorAppointmentViewResponse> patientAppointments = patientService.findAppointmentByPatient(phoneNumber);
-                    if(patientAppointments.isEmpty()){
-                        System.out.println("No appointments found for the specified patient.");
-                    }else{
-                        System.out.println("your appointment  Time is :");
-                        for(DoctorAppointmentViewResponse appointment : patientAppointments){
-                            System.out.println("startTime : "+DateUtil.dateConvertor(appointment.getStartTime() )+" endTime: "+DateUtil.dateConvertor( appointment.getEndTime()) +" status: "+ appointment.getStatus()  );
-                        }
-                    }
+                    viewPatientAppointments(scanner);
                     break;
                 default:
-                    System.out.println("Invalid choice");
+                    System.out.println(messages.getString("invalidChoice"));
             }
-            System.out.println("Do you want to perform another action? (1 for yes, 0 for no):");
-            int continueChoice = scanner.nextInt();
-            if(continueChoice == 0){
-                break; // Exit the loop and go back to the main doctor menu
+        } while (performAnotherAction(scanner));
+    }
+    private void addDoctor(Scanner scanner) {
+        DoctorDTO dto = new DoctorDTO();
+        System.out.println(messages.getString("enterDoctorName"));
+        dto.setName(scanner.next());
+        Response response = doctorService.saveDoctor(dto);
+        System.out.println(response.getMessage());
+        System.out.println(messages.getString("setDoctorWorkTime"));
+        int reserveChoice = scanner.nextInt();
+        if (reserveChoice == 1) {
+            setDoctorSchedule(dto.getName(),scanner);
+        }
+
+    }
+    private void setDoctorSchedule(Scanner scanner) {
+        List<Response> responseList = new ArrayList<>();
+        DoctorAvailabilityDTO doctorAvailabilityDTO = new DoctorAvailabilityDTO();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm");
+        System.out.println(messages.getString("enterDoctorName"));
+        String doctorName = scanner.next();
+        doctorAvailabilityDTO.setDoctorName(doctorName);
+        System.out.println(messages.getString("enterDayOfMonth"));
+        int dayOfMonth = scanner.nextInt();
+        doctorAvailabilityDTO.setDayOfMonth(dayOfMonth);
+        System.out.println(messages.getString("enterStartTime"));
+        String start = scanner.next();
+        LocalTime startTime = LocalTime.parse(start, formatter);
+        doctorAvailabilityDTO.setStartTime(startTime);
+        System.out.println(messages.getString("enterEndTime"));
+        String end = scanner.next();
+        LocalTime endTime = LocalTime.parse(end, formatter);
+        doctorAvailabilityDTO.setEndTime(endTime);
+        if (doctorValidationService.validate(doctorAvailabilityDTO, responseList)) {
+            doctorService.setDoctorDailyWorkSchedule(doctorAvailabilityDTO, responseList);
+        }
+        for (Response res : responseList) {
+            System.out.println(res.getMessage());
+        }
+    }
+    private void setDoctorSchedule( String doctorName,Scanner scanner) {
+        List<Response> responseList = new ArrayList<>();
+        DoctorAvailabilityDTO doctorAvailabilityDTO = new DoctorAvailabilityDTO();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm");
+        doctorAvailabilityDTO.setDoctorName(doctorName);
+        System.out.println(messages.getString("dayOfMonthPrompt"));
+        int dayOfMonth = scanner.nextInt();
+        doctorAvailabilityDTO.setDayOfMonth(dayOfMonth);
+        System.out.println(messages.getString("enterStartTime"));
+        String start = scanner.next();
+        LocalTime startTime = LocalTime.parse(start, formatter);
+        doctorAvailabilityDTO.setStartTime(startTime);
+        System.out.println(messages.getString("enterEndTime"));
+        String end = scanner.next();
+        LocalTime endTime = LocalTime.parse(end, formatter);
+        doctorAvailabilityDTO.setEndTime(endTime);
+        if (doctorValidationService.validate(doctorAvailabilityDTO, responseList)) {
+            doctorService.setDoctorDailyWorkSchedule(doctorAvailabilityDTO, responseList);
+        }
+        for (Response res : responseList) {
+            System.out.println(res.getMessage());
+        }
+    }
+    private void viewDoctorAppointments(Scanner scanner) {
+        System.out.println(messages.getString("enterDoctorName"));
+        String name = scanner.next();
+        System.out.println(messages.getString("enterDayOfMonth"));
+        int day = scanner.nextInt();
+        List<DoctorAppointmentViewResponse> availableAppointments = doctorService.showDoctorFreeAppointments(name, day);
+        if (availableAppointments.isEmpty()) {
+            System.out.println(messages.getString("noAppointmentsFound"));
+        } else {
+            System.out.println(messages.getString("availableAppointments"));
+            for (DoctorAppointmentViewResponse appointment : availableAppointments) {
+                System.out.println(messages.getString("appointmentStartTime") + appointment.getStartTime() + messages.getString("appointmentEndTime") + appointment.getEndTime() + messages.getString("appointmentStatus") + appointment.getStatus());
             }
-        }while(true);
+        }
+    }
+    private void deleteDoctorAppointment(Scanner scanner) {
+        System.out.println(messages.getString("enterDoctorName"));
+        String docName = scanner.next();
+        System.out.println(messages.getString("enterDayOfMonth"));
+        int dayNumber = scanner.nextInt();
+        System.out.println(messages.getString("enterAppointmentDigit"));
+        int digit = scanner.nextInt();
+        Response response1 = doctorService.deleteAppointmentByDoctor(digit, docName, dayNumber);
+        System.out.println(response1.getMessage());
+    }
+    private void viewDoctorFreeAppointments(Scanner scanner) {
+        System.out.println(messages.getString("doctorNamePrompt"));
+        String doctorName = scanner.next();
+        System.out.println(messages.getString("dayOfMonthPrompt"));
+        int day = scanner.nextInt();
+        List<DoctorAppointmentViewResponse> availableAppointments = patientService.showDoctorFreeAppointments(doctorName, day);
+        if (availableAppointments.isEmpty()) {
+            System.out.println(messages.getString("noAppointmentsFound"));
+        } else {
+            System.out.println(messages.getString("availableAppointments"));
+            for (DoctorAppointmentViewResponse appointment : availableAppointments) {
+                System.out.println(messages.getString("startTime") + " " + DateUtil.dateConvertor(appointment.getStartTime()) + " " + messages.getString("endTime") + " " + DateUtil.dateConvertor(appointment.getEndTime()) + " " + messages.getString("status") + " " + appointment.getStatus());
+            }
+        }
+        System.out.println(messages.getString("reserveAppointmentPrompt"));
+        int reserveChoice = scanner.nextInt();
+        if (reserveChoice == 1) {
+            reserveAppointment(doctorName, day, scanner);
+        }
+    }
+    private void viewPatientAppointments(Scanner scanner) {
+        System.out.println("Enter your phoneNumber:");
+        String phoneNumber = scanner.next();
+        List<DoctorAppointmentViewResponse> patientAppointments = patientService.findAppointmentByPatient(phoneNumber);
+        if(patientAppointments.isEmpty()){
+            System.out.println("No appointments found for the specified patient.");
+        }else{
+            System.out.println("your appointment  Time is :");
+            for(DoctorAppointmentViewResponse appointment : patientAppointments){
+                System.out.println("startTime : "+DateUtil.dateConvertor(appointment.getStartTime() )+" endTime: "+DateUtil.dateConvertor( appointment.getEndTime()) +" status: "+ appointment.getStatus()  );
+            }
+        }
+    }
+    private void reserveAppointment(Scanner scanner) {
+        PatientReserveAppointmentDTO appointmentRequest = new PatientReserveAppointmentDTO();
+        System.out.println(messages.getString("doctorNamePrompt"));
+        String name = scanner.next();
+        appointmentRequest.setDoctorName(name);
+        System.out.println(messages.getString("dayOfMonthPrompt"));
+        int dayofmonth = scanner.nextInt();
+        appointmentRequest.setDayOfMonth(dayofmonth);
+        System.out.println(messages.getString("enterAppointmentDigit"));
+        int digit = scanner.nextInt();
+        appointmentRequest.setAppointmentDigit(digit);
+        Appointment reservingAppointmentForView = patientService.getReservingAppointmentForView(appointmentRequest);
+        System.out.println(messages.getString("confirmAppointmentTime") + " " + DateUtil.dateConvertor(reservingAppointmentForView.getStartTime()) + " " + messages.getString("endTime") + " " + DateUtil.dateConvertor(reservingAppointmentForView.getEndTime()) + " " + messages.getString("status") + " " + reservingAppointmentForView.getStatus());
+        System.out.println(messages.getString("confirmAppointment"));
+        int continueChoice = scanner.nextInt();
+        if (continueChoice == 0) {
+            return;
+        }
+        Long appointmentId = patientService.reservingAppointment(reservingAppointmentForView.getAppointmentsId());
+        System.out.println(messages.getString("patientNamePrompt"));
+        String patientName = scanner.next();
+        appointmentRequest.setName(patientName);
+        System.out.println(messages.getString("patientPhoneNumberPrompt"));
+        String patientPhoneNumber = scanner.next();
+        appointmentRequest.setPhoneNumber(patientPhoneNumber);
+        DoctorAppointmentViewResponse response = patientService.reserveAppointment(appointmentRequest, appointmentId);
+        if (response == null) {
+            System.out.println(messages.getString("appointmentReservationFailed"));
+        } else {
+            System.out.println(messages.getString("appointmentReservationSuccess") + " " + DateUtil.dateConvertor(response.getStartTime()) + " " + messages.getString("endTime") + " " + DateUtil.dateConvertor(response.getEndTime()) + " " + messages.getString("status") + " " + response.getStatus());
+        }
+        return;
+    }
+    private  void reserveAppointment(String doctorName,int day,Scanner scanner) {
+        PatientReserveAppointmentDTO appointmentRequest = new PatientReserveAppointmentDTO();
+        appointmentRequest.setDoctorName(doctorName);
+        appointmentRequest.setDayOfMonth(day);
+        System.out.println(messages.getString("enterAppointmentDigit"));
+        int digit = scanner.nextInt();
+        appointmentRequest.setAppointmentDigit(digit);
+        Appointment reservingAppointmentForView = patientService.getReservingAppointmentForView(appointmentRequest);
+        System.out.println(messages.getString("confirmAppointmentTime") + " " + DateUtil.dateConvertor(reservingAppointmentForView.getStartTime()) + " " + messages.getString("endTime") + " " + DateUtil.dateConvertor(reservingAppointmentForView.getEndTime()) + " " + messages.getString("status") + " " + reservingAppointmentForView.getStatus());
+        System.out.println(messages.getString("confirmAppointment"));
+        int continueChoice = scanner.nextInt();
+        if (continueChoice == 0) {
+            return;
+        }
+        Long appointmentId = patientService.reservingAppointment(reservingAppointmentForView.getAppointmentsId());
+        System.out.println(messages.getString("patientNamePrompt"));
+        String patientName = scanner.next();
+        appointmentRequest.setName(patientName);
+        System.out.println(messages.getString("patientPhoneNumberPrompt"));
+        String patientPhoneNumber = scanner.next();
+        appointmentRequest.setPhoneNumber(patientPhoneNumber);
+        DoctorAppointmentViewResponse response = patientService.reserveAppointment(appointmentRequest, appointmentId);
+        if (response == null) {
+            System.out.println(messages.getString("appointmentReservationFailed"));
+        } else {
+            System.out.println(messages.getString("appointmentReservationSuccess") + " " + DateUtil.dateConvertor(response.getStartTime()) + " " + messages.getString("endTime") + " " + DateUtil.dateConvertor(response.getEndTime()) + " " + messages.getString("status") + " " + response.getStatus());
+        }
+        return;
+    }
+    private boolean performAnotherAction(Scanner scanner) {
+        System.out.println(messages.getString("yesOrNo"));
+        int continueChoice = scanner.nextInt();
+        return continueChoice != 0;
     }
 }

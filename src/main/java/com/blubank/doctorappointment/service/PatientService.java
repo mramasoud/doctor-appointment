@@ -1,11 +1,11 @@
 package com.blubank.doctorappointment.service;
 
+import com.blubank.doctorappointment.CacheService;
 import com.blubank.doctorappointment.dto.PatientReserveAppointmentDTO;
 import com.blubank.doctorappointment.entity.Appointment;
 import com.blubank.doctorappointment.entity.Doctor;
 import com.blubank.doctorappointment.entity.Patient;
 import com.blubank.doctorappointment.ordinal.AppointmentStatus;
-import com.blubank.doctorappointment.repository.DoctorRepository;
 import com.blubank.doctorappointment.repository.PatientRepository;
 import com.blubank.doctorappointment.response.DoctorAppointmentViewResponse;
 import com.blubank.doctorappointment.util.DateUtil;
@@ -16,21 +16,23 @@ import org.webjars.NotFoundException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.ResourceBundle;
 import java.util.stream.Collectors;
 
-
+@Service
 public class PatientService{
-    @Autowired
-    private DoctorRepository doctorRepository;
     @Autowired
     AppointmentService appointmentService;
     @Autowired
     PatientRepository patientRepository;
+    @Autowired
+    CacheService  cacheService;
 
+    ResourceBundle messages = ResourceBundle.getBundle("HospitalMessages");
 
     public List<DoctorAppointmentViewResponse> showDoctorFreeAppointments(String doctorName , int dayOfMonth){
 
-        Doctor doctor = doctorRepository.findByName(doctorName);
+        Doctor doctor = cacheService.findDoctor(doctorName);
         List<Appointment> appointments = appointmentService.findEmptyAppointmentByDoctor(doctor , dayOfMonth);
         return appointments.stream()
                 .map(appointment -> {
@@ -50,17 +52,17 @@ public class PatientService{
 
     }
     public DoctorAppointmentViewResponse reserveIngAppointment(PatientReserveAppointmentDTO dto){
-        Doctor doctor = doctorRepository.findByName(dto.getDoctorName());
-        if(doctor == null){
-            throw new NotFoundException("doctor notfound ");
+        Doctor doctor =  cacheService.findDoctor(dto.getDoctorName());
+        if(doctor.getDoctorsId() == null){
+            throw new NotFoundException(messages.getString("doctorNotFound"));
         }
         List<Appointment> appointments = appointmentService.findEmptyAppointmentByDoctor(doctor , dto.getDayOfMonth());
         if(appointments.isEmpty()){
-            throw new NotFoundException("No free appointments available");
+            throw new NotFoundException(messages.getString("appointmentFreeNotFound"));
         }
         Appointment appointment = appointments.get(dto.getAppointmentDigit() - 1);
         if(appointment.getStatus() == AppointmentStatus.reserved || appointment.getStatus() == AppointmentStatus.reserving){
-            throw new NotFoundException("No free appointments available");
+            throw new NotFoundException(messages.getString("appointmentFreeNotFound"));
         }
         appointment.setStatus(AppointmentStatus.reserving);
         appointment.setPatient(addPatient(dto.getName() , dto.getPhoneNumber()));
@@ -77,17 +79,17 @@ public class PatientService{
         return response;
     }
     public Appointment getReservingAppointmentForView(PatientReserveAppointmentDTO dto){
-        Doctor doctor = doctorRepository.findByName(dto.getDoctorName());
-        if(doctor == null){
-            throw new NotFoundException("doctor notfound ");
+        Doctor doctor =  cacheService.findDoctor(dto.getDoctorName());
+        if(doctor.getDoctorsId() == null){
+            throw new NotFoundException(messages.getString("doctorNotFound"));
         }
         List<Appointment> appointments = appointmentService.findEmptyAppointmentByDoctor(doctor , dto.getDayOfMonth());
         if(appointments.isEmpty()){
-            throw new NotFoundException("No free appointments available");
+            throw new NotFoundException(messages.getString("appointmentFreeNotFound"));
         }
         Appointment appointment = appointments.get(dto.getAppointmentDigit() - 1);
         if(appointment.getStatus() == AppointmentStatus.reserved || appointment.getStatus() == AppointmentStatus.reserving){
-            throw new NotFoundException("No free appointments available");
+            throw new NotFoundException(messages.getString("appointmentFreeNotFound"));
         }
         return appointment;
     }
@@ -102,17 +104,17 @@ public class PatientService{
     }
 
     public DoctorAppointmentViewResponse reserveAppointment(PatientReserveAppointmentDTO dto){
-        Doctor doctor = doctorRepository.findByName(dto.getDoctorName());
-        if(doctor == null){
-            throw new NotFoundException("doctor notfound ");
+        Doctor doctor =  cacheService.findDoctor(dto.getDoctorName());
+        if(doctor.getDoctorsId() == null){
+            throw new NotFoundException(messages.getString("doctorNotFound"));
         }
         List<Appointment> appointments = appointmentService.findEmptyAppointmentByDoctor(doctor , dto.getDayOfMonth());
         if(appointments.isEmpty()){
-            throw new NotFoundException("No free appointments available");
+            throw new NotFoundException(messages.getString("appointmentFreeNotFound"));
         }
         Appointment appointment = appointments.get(dto.getAppointmentDigit() - 1);
         if(appointment.getStatus() == AppointmentStatus.reserved || appointment.getStatus() == AppointmentStatus.reserving){
-            throw new NotFoundException("No free appointments available");
+            throw new NotFoundException(messages.getString("appointmentFreeNotFound"));
         }
         appointment.setStatus(AppointmentStatus.reserving);
         appointment.setPatient(addPatient(dto.getName() , dto.getPhoneNumber()));
@@ -153,7 +155,7 @@ public class PatientService{
         if(patient.isPresent()){
             appointments = appointmentService.findAppointmentByPatientPhone(patient.get());
         }else{
-            throw new NotFoundException("appointment Not found");
+            throw new NotFoundException(messages.getString("doctorNotFound"));
         }
         List<DoctorAppointmentViewResponse> responses = new ArrayList<>();
         if(appointments.size() != 0){

@@ -3,6 +3,7 @@ package com.blubank.doctorappointment.dto;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 
+import javax.validation.constraints.Pattern;
 import java.time.LocalTime;
 
 @Data
