@@ -11,8 +11,9 @@ public enum CodeProjectEnum{
     doctorSaved(200,"doctor have been created."),
     appointmentDeleted(200,"appointment have been deleted."),
     appointmentNotSaved(200,"A 30-minute time period was not found on a working day."),
-    serverError(500,"serverError");
-
+    serverError(500,"serverError"),
+    duplicateTime(500,"duplicate time work in day:  "),
+    duplicate(500,"duplicate item ");
 
     private int errorCode;
     private String errorDescription;

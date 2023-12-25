@@ -11,14 +11,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class AppointmentService{
 
     @Autowired
     private AppointmentRepository appointmentRepository;
-
 
 
     public void saveAppointment(List<Appointment> availableTimePeriods){
@@ -30,7 +28,7 @@ public class AppointmentService{
     }
 
     public List<Appointment> findAppointmentByPatientPhone(Patient patient){
-        return appointmentRepository.findByPatientAndStatus(patient,AppointmentStatus.reserved);
+        return appointmentRepository.findByPatientAndStatus(patient , AppointmentStatus.reserved);
     }
 
     public List<Appointment> findFreeAppointmentByDoctor(Doctor doctor , int day){

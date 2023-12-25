@@ -28,9 +28,9 @@ public class DoctorService{
     AppointmentService appointmentService;
     private static final int timePeriods_Min = 30;
 
-    public Response addDoctor(DoctorDTO dto){
+    public Response saveDoctor(DoctorDTO dto){
         if(doctorRepository.findByName(dto.getName())!=null){
-            throw new IllegalStateException("duplicate" );
+           return new Response(CodeProjectEnum.duplicate.getErrorCode() , CodeProjectEnum.duplicate.getErrorDescription());
         }
 
         Doctor doctor = doctorRepository.save(new Doctor(dto.getName()));
@@ -47,7 +47,8 @@ public class DoctorService{
             return responses;
         }
         if(appointmentService.findFreeAppointmentByDoctor(doctor,dto.getDayOfMonth()).size()!=0){
-            throw new IllegalStateException("duplicate time work in day  : "+ dto.getDayOfMonth() + "please enter some dayOfMonth");
+            responses.add(new Response(CodeProjectEnum.duplicateTime.getErrorCode() , CodeProjectEnum.duplicateTime.getErrorDescription()));
+            return responses;
         }
         try{
             List<Appointment> availableTimePeriods = getAvailableTimePeriods(dto.getDayOfMonth() , dto.getStartTime() , dto.getEndTime() , doctor);
@@ -101,10 +102,8 @@ public class DoctorService{
         }
         return timePeriods;
     }
-    public Response deleteAppointment(int appointmentNumber,String doctorName,int day){
+    public Response deleteAppointmentByDoctor(int appointmentNumber, String doctorName, int day){
         Doctor doctor = doctorRepository.findByName(doctorName);
         return appointmentService.deleteAppointment(doctor,appointmentNumber,day);
     }
-
-
 }

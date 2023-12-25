@@ -57,11 +57,11 @@ public class PatientService{
         }
         List<Appointment> appointments = appointmentService.findEmptyAppointmentByDoctor(doctor , dto.getDayOfMonth());
         if(appointments.isEmpty()){
-            throw new IllegalStateException("No free appointments available");
+            throw new NotFoundException("No free appointments available");
         }
         Appointment appointment = appointments.get(dto.getAppointmentDigit() - 1);
         if(appointment.getStatus() == AppointmentStatus.reserved || appointment.getStatus() == AppointmentStatus.reserving){
-            throw new IllegalStateException("No free appointments available");
+            throw new NotFoundException("No free appointments available");
         }
         appointment.setStatus(AppointmentStatus.reserving);
         appointment.setPatient(addPatient(dto.getName() , dto.getPhoneNumber()));
