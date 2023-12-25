@@ -1,0 +1,203 @@
+{
+	"info": {
+		"_postman_id": "03a8967a-f239-4ea7-ac85-c87938cbdcfd",
+		"name": "doctor",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "30179253"
+	},
+	"item": [
+		{
+			"name": "add doctor",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"name\":\"masoud\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/api/v1/doctor/add",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"v1",
+						"doctor",
+						"add"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "workTime Day",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"doctorName\": \"masoud\",\r\n    \"dayOfMonth\": 1,\r\n    \"startTime\": \"09:00\",\r\n    \"endTime\": \"18:35\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/api/v1/doctor/workTime",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"v1",
+						"doctor",
+						"workTime"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "showFreeTimes",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/api/v1/doctor/appointments/view/masoud/1",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"v1",
+						"doctor",
+						"appointments",
+						"view",
+						"masoud",
+						"1"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "delete by /numberofAppointment/doctorname/day of month",
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/api/v1/doctor/delete/1/masoud/1",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"v1",
+						"doctor",
+						"delete",
+						"1",
+						"masoud",
+						"1"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "paitentView",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/api/v1/patient/appointments/view/masoud/1",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"v1",
+						"patient",
+						"appointments",
+						"view",
+						"masoud",
+						"1"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "appointmentView",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/api/v1/patient/appointments/view/09376710620",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"v1",
+						"patient",
+						"appointments",
+						"view",
+						"09376710620"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "reserve time",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"doctorName\": \"masoud\",\r\n    \"dayOfMonth\": 1,\r\n    \"appointmentDigit\": 2,\r\n    \"name\": \"amirhosein\",\r\n    \"phoneNumber\": \"09376710620\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/api/v1/patient/appointments/reserve",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"v1",
+						"patient",
+						"appointments",
+						"reserve"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
