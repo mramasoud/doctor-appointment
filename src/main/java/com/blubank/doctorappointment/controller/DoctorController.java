@@ -6,6 +6,8 @@ import com.blubank.doctorappointment.response.DoctorAppointmentViewResponse;
 import com.blubank.doctorappointment.response.Response;
 import com.blubank.doctorappointment.service.DoctorService;
 import com.blubank.doctorappointment.validation.ValidationService;
+import lombok.Getter;
+import lombok.Setter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -21,7 +23,6 @@ public class DoctorController{
     private DoctorService doctorService;
     @Autowired
     private ValidationService<DoctorAvailabilityDTO> doctorValidationService;
-
     @PostMapping("/workTime")
     public ResponseEntity<List<Response>> doctorDailySchedule(@RequestBody DoctorAvailabilityDTO dto){
         List<Response> responses = new ArrayList<>();
@@ -32,19 +33,17 @@ public class DoctorController{
             return new ResponseEntity<>(responseList , HttpStatus.ACCEPTED);
         }
     }
-
-    @GetMapping("/appointments/view/{doctorName}/{day}")
+    @GetMapping("/appointments/{doctorName}/{day}")
     public ResponseEntity<List<DoctorAppointmentViewResponse>> getEmptyAppointmentTime(@PathVariable String doctorName , @PathVariable int day){
         return new ResponseEntity<>(doctorService.showDoctorFreeAppointments(doctorName,day) , HttpStatus.ACCEPTED);
     }
-
     @PostMapping("/add")
     public ResponseEntity<Response> addNewDoctor(@RequestBody DoctorDTO dto){
-        return new ResponseEntity<>(doctorService.addDoctor(dto) , HttpStatus.OK);
+        return new ResponseEntity<>(doctorService.saveDoctor(dto) , HttpStatus.OK);
     }
     @DeleteMapping("/delete/{number}/{name}/{day}")
     public ResponseEntity<Response> deleteAppointment(@PathVariable int number , @PathVariable String name , @PathVariable int day){
-        return new ResponseEntity<>(doctorService.deleteAppointment(number , name , day) , HttpStatus.OK);
+        return new ResponseEntity<>(doctorService.deleteAppointmentByDoctor(number , name , day) , HttpStatus.OK);
     }
 
 

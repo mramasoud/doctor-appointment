@@ -20,7 +20,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-@Service
+
 public class DoctorService{
     @Autowired
     private DoctorRepository doctorRepository;
@@ -28,7 +28,11 @@ public class DoctorService{
     AppointmentService appointmentService;
     private static final int timePeriods_Min = 30;
 
-    public Response addDoctor(DoctorDTO dto){
+    public Response saveDoctor(DoctorDTO dto){
+        if(doctorRepository.findByName(dto.getName())!=null){
+           return new Response(CodeProjectEnum.duplicate.getErrorCode() , CodeProjectEnum.duplicate.getErrorDescription());
+        }
+
         Doctor doctor = doctorRepository.save(new Doctor(dto.getName()));
         if(doctor.getDoctorsId() != null){
             return new Response(CodeProjectEnum.doctorSaved.getErrorCode(),CodeProjectEnum.doctorSaved.getErrorDescription());
@@ -36,11 +40,14 @@ public class DoctorService{
             return new Response(CodeProjectEnum.serverError.getErrorCode(),CodeProjectEnum.serverError.getErrorDescription());
         }
     }
-
     public List<Response> setDoctorDailyWorkSchedule(DoctorAvailabilityDTO dto , List<Response> responses){
         Doctor doctor = doctorRepository.findByName(dto.getDoctorName());
         if(doctor == null){
             responses.add(new Response(CodeProjectEnum.doctorNotFound.getErrorCode() , CodeProjectEnum.doctorNotFound.getErrorDescription()));
+            return responses;
+        }
+        if(appointmentService.findFreeAppointmentByDoctor(doctor,dto.getDayOfMonth()).size()!=0){
+            responses.add(new Response(CodeProjectEnum.duplicateTime.getErrorCode() , CodeProjectEnum.duplicateTime.getErrorDescription()));
             return responses;
         }
         try{
@@ -57,9 +64,10 @@ public class DoctorService{
             return responses;
         }
     }
+
    public List<DoctorAppointmentViewResponse> showDoctorFreeAppointments(String doctorName, int day) {
        Doctor doctor = doctorRepository.findByName(doctorName);
-       List<Appointment> appointments = appointmentService.findEmptyAppointmentByDoctor(doctor, day);
+       List<Appointment> appointments = appointmentService.findFreeAppointmentByDoctor(doctor, day);
        return appointments.stream()
                .map(appointment -> {
                    DoctorAppointmentViewResponse response = new DoctorAppointmentViewResponse();
@@ -94,10 +102,8 @@ public class DoctorService{
         }
         return timePeriods;
     }
-    public Response deleteAppointment(int appointmentNumber,String doctorName,int day){
+    public Response deleteAppointmentByDoctor(int appointmentNumber, String doctorName, int day){
         Doctor doctor = doctorRepository.findByName(doctorName);
         return appointmentService.deleteAppointment(doctor,appointmentNumber,day);
     }
-
-
 }
