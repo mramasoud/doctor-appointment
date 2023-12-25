@@ -19,17 +19,17 @@ public class PatientController{
     @Autowired
     PatientService patientService;
 
-    @GetMapping("/appointments/view/{doctorName}/{day}")
+    @GetMapping("/appointments/{doctorName}/{day}")
     public ResponseEntity<List<DoctorAppointmentViewResponse>> getEmptyAppointmentTime(@PathVariable String doctorName , @PathVariable int day){
         return new ResponseEntity<>(patientService.showDoctorFreeAppointments(doctorName , day) , HttpStatus.ACCEPTED);
 
     }
-    @GetMapping("/appointments/view/{phoneNumber}")
+    @GetMapping("/appointments/{phoneNumber}")
     public ResponseEntity<List<DoctorAppointmentViewResponse>> getAppointment(@PathVariable String phoneNumber ){
         return new ResponseEntity<>(patientService.findAppointmentByPatient(phoneNumber) , HttpStatus.ACCEPTED);
     }
 
-    @PostMapping("/appointments/reserve")
+    @PostMapping("/appointments/")
     public ResponseEntity<DoctorAppointmentViewResponse> reserveAppointmentForPatient(@RequestBody PatientReserveAppointmentDTO dto){
             DoctorAppointmentViewResponse responseList = patientService.reserveAppointment(dto);
             return new ResponseEntity<>(responseList , HttpStatus.ACCEPTED);

@@ -19,5 +19,9 @@ public class DoctorAvailabilityDTO extends AbaseDto{
         this.startTime = startTime;
         this.endTime = endTime;
     }
+
+    public DoctorAvailabilityDTO(){
+
+    }
 }
 

@@ -7,16 +7,19 @@ import com.blubank.doctorappointment.ordinal.AppointmentStatus;
 import com.blubank.doctorappointment.ordinal.CodeProjectEnum;
 import com.blubank.doctorappointment.repository.AppointmentRepository;
 import com.blubank.doctorappointment.response.Response;
+import com.blubank.doctorappointment.ui.ConsoleUI;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
+import org.springframework.scheduling.annotation.Scheduled;
 
 import java.util.List;
 
-@Service
+
 public class AppointmentService{
+
 
     @Autowired
     private AppointmentRepository appointmentRepository;
+
 
 
     public void saveAppointment(List<Appointment> availableTimePeriods){

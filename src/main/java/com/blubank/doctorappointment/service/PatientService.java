@@ -18,7 +18,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-@Service
+
 public class PatientService{
     @Autowired
     private DoctorRepository doctorRepository;
@@ -49,7 +49,33 @@ public class PatientService{
                 .collect(Collectors.toList());
 
     }
-
+    public DoctorAppointmentViewResponse reserveIngAppointment(PatientReserveAppointmentDTO dto){
+        Doctor doctor = doctorRepository.findByName(dto.getDoctorName());
+        if(doctor == null){
+            throw new NotFoundException("doctor notfound ");
+        }
+        List<Appointment> appointments = appointmentService.findEmptyAppointmentByDoctor(doctor , dto.getDayOfMonth());
+        if(appointments.isEmpty()){
+            throw new NotFoundException("No free appointments available");
+        }
+        Appointment appointment = appointments.get(dto.getAppointmentDigit() - 1);
+        if(appointment.getStatus() == AppointmentStatus.reserved || appointment.getStatus() == AppointmentStatus.reserving){
+            throw new NotFoundException("No free appointments available");
+        }
+        appointment.setStatus(AppointmentStatus.reserving);
+        appointment.setPatient(addPatient(dto.getName() , dto.getPhoneNumber()));
+        appointment = appointmentService.saveAppointment(appointment);
+        DoctorAppointmentViewResponse response = new DoctorAppointmentViewResponse();
+        response.setDigit(1);
+        response.setStartTime(DateUtil.dateConvertor(appointment.getStartTime()));
+        response.setEndTime(DateUtil.dateConvertor(appointment.getEndTime()));
+        response.setPatientName(dto.getName());
+        response.setPatientPhoneNumber(dto.getPhoneNumber());
+        appointment.setStatus(AppointmentStatus.reserved);
+        appointmentService.saveAppointment(appointment);
+        response.setStatus(appointment.getStatus());
+        return response;
+    }
     public DoctorAppointmentViewResponse reserveAppointment(PatientReserveAppointmentDTO dto){
         Doctor doctor = doctorRepository.findByName(dto.getDoctorName());
         if(doctor == null){
