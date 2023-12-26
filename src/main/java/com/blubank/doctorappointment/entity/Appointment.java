@@ -7,7 +7,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.persistence.*;
-import java.util.Date;
+import java.time.LocalDate;
+import java.time.LocalTime;
 
 @Entity
 @Table(name = "APPOINTMENT")
@@ -20,11 +21,11 @@ public class Appointment {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long appointmentsId;
     @Column
-    private Date startTime;
+    private LocalTime startTime;
     @Column
-    private Date endTime;
+    private LocalTime endTime;
     @Column
-    private Integer dayOfMonth;
+    private LocalDate dayOfMonth;
     @Column
     private AppointmentStatus status;
     @ManyToOne(fetch = FetchType.LAZY)
@@ -34,11 +35,12 @@ public class Appointment {
     @JoinColumn(name = "patient_id")
     private Patient patient;
 
-    public Appointment(Date startTime , Date endTime , Integer dayOfMonth , AppointmentStatus status , Doctor doctor){
+
+    public Appointment(LocalTime startTime, LocalTime endTime, LocalDate dayOfMonth, AppointmentStatus status, Doctor doctor) {
+        this.doctor = doctor;
         this.startTime = startTime;
         this.endTime = endTime;
         this.dayOfMonth = dayOfMonth;
         this.status = status;
-        this.doctor = doctor;
     }
 }

@@ -1,9 +1,6 @@
 package com.blubank.doctorappointment.util;
 
-import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
+import java.time.*;
 import java.util.Date;
 
 public class DateUtil{
@@ -25,8 +22,8 @@ public class DateUtil{
         return time.isAfter(LocalTime.of(0 , 0)) && time.isBefore(LocalTime.of(23 , 59));
     }
 
-    public static boolean dayOfMonthValidation(int day){
-        return day > 0 && day < 32;
+    public static boolean dayOfMonthValidation(LocalDate day){
+        return day.isAfter(LocalDate.now());
     }
 
     public static Date dateConvertor(LocalTime time){

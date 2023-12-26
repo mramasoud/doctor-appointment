@@ -7,54 +7,60 @@ import com.blubank.doctorappointment.ordinal.AppointmentStatus;
 import com.blubank.doctorappointment.ordinal.CodeProjectEnum;
 import com.blubank.doctorappointment.repository.AppointmentRepository;
 import com.blubank.doctorappointment.response.Response;
-import com.blubank.doctorappointment.ui.ConsoleUI;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
+import java.util.ResourceBundle;
 
+@Service
 
-public class AppointmentService{
-
-
+public class AppointmentService {
     @Autowired
     private AppointmentRepository appointmentRepository;
 
-
+    ResourceBundle messages = ResourceBundle.getBundle("HospitalMessages");
 
     public void saveAppointment(List<Appointment> availableTimePeriods){
         appointmentRepository.saveAll(availableTimePeriods);
     }
-
     public Appointment saveAppointment(Appointment availableTimePeriod){
         return appointmentRepository.save(availableTimePeriod);
     }
 
+    public List<Appointment> findAll(){
+       return appointmentRepository.findAllByStatusOrderByAppointmentsId(AppointmentStatus.empty);
+    }
     public List<Appointment> findAppointmentByPatientPhone(Patient patient){
         return appointmentRepository.findByPatientAndStatus(patient , AppointmentStatus.reserved);
     }
 
-    public List<Appointment> findFreeAppointmentByDoctor(Doctor doctor , int day){
+    public List<Appointment> findFreeAppointmentByDoctor(Doctor doctor , LocalDate day){
         return appointmentRepository.findByDoctorAndDayOfMonthOrderByAppointmentsId(doctor , day);
     }
 
-    public List<Appointment> findEmptyAppointmentByDoctor(Doctor doctor , int day){
+    public List<Appointment> findEmptyAppointmentByDoctor(Doctor doctor , LocalDate day){
         return appointmentRepository.findByDoctorAndDayOfMonthAndStatusOrderByAppointmentsId(doctor , day , AppointmentStatus.empty);
     }
+    Optional<Appointment> findAppointmentById(Long id){
+        return appointmentRepository.findById(id);
+    }
 
-    public Response deleteAppointment(Doctor doctor , int appointmentNumber , int day){
+    public Response deleteAppointment(Doctor doctor , int appointmentNumber , LocalDate day){
         List<Appointment> appointments = findFreeAppointmentByDoctor(doctor , day);
         if(appointments.isEmpty() || appointmentNumber < 1 || appointmentNumber > appointments.size()){
-            return new Response(CodeProjectEnum.AppointmentNotFound.getErrorCode() , CodeProjectEnum.AppointmentNotFound.getErrorDescription());
+            return new Response(CodeProjectEnum.AppointmentNotFound.getErrorCode() , messages.getString("appointmentNotFound"));
         }
         Appointment appointment = appointments.get(appointmentNumber - 1);
         if(appointment.getStatus() == AppointmentStatus.reserving){
-            return new Response(CodeProjectEnum.appointmentReserved.getErrorCode() , CodeProjectEnum.appointmentReserved.getErrorDescription());
+            return new Response(CodeProjectEnum.appointmentReserved.getErrorCode() ,messages.getString("appointmentReserved"));
         }
         if(appointment.getStatus() == AppointmentStatus.reserved){
-            return new Response(CodeProjectEnum.appointmentReserved.getErrorCode() , CodeProjectEnum.appointmentReserved.getErrorDescription());
+            return new Response(CodeProjectEnum.appointmentReserved.getErrorCode() , messages.getString("appointmentReserved"));
         }
         appointmentRepository.delete(appointment);
-        return new Response(CodeProjectEnum.appointmentDeleted.getErrorCode() , CodeProjectEnum.appointmentDeleted.getErrorDescription());
+        return new Response(CodeProjectEnum.appointmentDeleted.getErrorCode() , messages.getString("appointmentDeleted"));
     }
 }
