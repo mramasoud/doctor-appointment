@@ -15,7 +15,7 @@ import java.util.List;
 import java.util.ResourceBundle;
 
 @RestController
-@RequestMapping("/api/v2/patient/appointments")
+@RequestMapping("/api/v1/patient/appointments")
 public class PatientController {
 
     @Autowired

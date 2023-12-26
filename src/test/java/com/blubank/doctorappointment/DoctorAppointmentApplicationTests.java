@@ -1,38 +1,16 @@
-/*
 package com.blubank.doctorappointment;
 
-import com.blubank.doctorappointment.controller.DoctorController;
-import com.blubank.doctorappointment.controller.PatientController;
-import com.blubank.doctorappointment.dto.DoctorAvailabilityDTO;
-import com.blubank.doctorappointment.dto.DoctorDTO;
-import com.blubank.doctorappointment.dto.PatientReserveAppointmentDTO;
-import com.blubank.doctorappointment.response.DoctorAppointmentViewResponse;
-import com.blubank.doctorappointment.response.Response;
-import org.aspectj.lang.annotation.Before;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.MethodOrderer;
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.web.server.ResponseStatusException;
-
-import java.time.LocalTime;
-import java.util.List;
-
-import static org.junit.jupiter.api.Assertions.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
 @AutoConfigureMockMvc
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class DoctorAppointmentApplicationTests {
-    @Autowired
+
+  /*  @Autowired
     private MockMvc mockMvc;
     @Autowired
     DoctorController doctorController;
@@ -125,6 +103,5 @@ class DoctorAppointmentApplicationTests {
             mockMvc.perform(delete("/api/v1/doctor/delete/{number}/{name}/{day}", number, name, day))
                     .andExpect(status().isNotFound());
         });
-    }
+    }*/
 }
-*/

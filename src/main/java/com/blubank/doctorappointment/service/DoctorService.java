@@ -14,6 +14,7 @@ import com.blubank.doctorappointment.response.Response;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.transaction.Transactional;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.ArrayList;
@@ -33,7 +34,7 @@ public class DoctorService {
 
     ResourceBundle messages = ResourceBundle.getBundle("HospitalMessages");
     private static final int timePeriods_Min = 30;
-
+    @Transactional
     public Response saveDoctor(DoctorDTO dto) {
         if (cacheService.findDoctor(1L).getName()!= null) {
             return new Response(CodeProjectEnum.duplicate.getErrorCode(), messages.getString("duplicate"));
@@ -46,7 +47,7 @@ public class DoctorService {
             return new Response(CodeProjectEnum.serverError.getErrorCode(), messages.getString("serverError"));
         }
     }
-
+    @Transactional
     public Response setDoctorDailyWorkSchedule(DoctorAvailabilityDTO dto) {
         Response  response;
         Doctor doctor = cacheService.findDoctor(1L);
@@ -72,7 +73,6 @@ public class DoctorService {
 
         }
     }
-
     public List<DoctorAppointmentViewResponse> showDoctorFreeAppointments(LocalDate day) {
         Doctor doctor = cacheService.findDoctor(1L);
         if (doctor.getDoctorsId() == null) {
@@ -96,8 +96,8 @@ public class DoctorService {
                 })
                 .collect(Collectors.toList());
     }
-
-    private void saveDoctorAvailableTime(List<Appointment> availableTimePeriods) {
+    @Transactional
+     void saveDoctorAvailableTime(List<Appointment> availableTimePeriods) {
         appointmentService.saveAppointment(availableTimePeriods);
     }
 
@@ -114,7 +114,7 @@ public class DoctorService {
         }
         return timePeriods;
     }
-
+    @Transactional
     public Response deleteAppointmentByDoctor(int appointmentNumber, LocalDate day) {
         Doctor doctor = cacheService.findDoctor(1L);
         return appointmentService.deleteAppointment(doctor, appointmentNumber, day);

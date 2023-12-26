@@ -10,6 +10,7 @@ import com.blubank.doctorappointment.response.Response;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.transaction.Transactional;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
@@ -47,7 +48,7 @@ public class AppointmentService {
     Optional<Appointment> findAppointmentById(Long id){
         return appointmentRepository.findById(id);
     }
-
+    @Transactional
     public Response deleteAppointment(Doctor doctor , int appointmentNumber , LocalDate day){
         List<Appointment> appointments = findFreeAppointmentByDoctor(doctor , day);
         if(appointments.isEmpty() || appointmentNumber < 1 || appointmentNumber > appointments.size()){
