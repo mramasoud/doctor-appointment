@@ -13,13 +13,15 @@ import org.springframework.scheduling.annotation.Scheduled;
 @EnableScheduling
 public class DoctorAppointmentApplication {
 
-	public static void main(String[] args) {
-		SpringApplication.run(DoctorAppointmentApplication.class, args);
-	}
-	@Autowired
-	ConsoleUI consoleUI;
-	@Scheduled(fixedDelay = 1L)
-	void runner(){
-		consoleUI.run();
-	}
+    public static void main(String[] args) {
+        SpringApplication.run(DoctorAppointmentApplication.class, args);
+    }
+
+    @Autowired
+    ConsoleUI consoleUI;
+
+    @Scheduled(fixedDelay = 1L)
+    void runner() {
+        consoleUI.run();
+    }
 }

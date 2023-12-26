@@ -9,13 +9,13 @@ import org.springframework.stereotype.Service;
 @Service
 public class CacheService {
     HazelcastInstance hazelcastInstance = Hazelcast.newHazelcastInstance();
-    IMap<String, Long> doctorMap = hazelcastInstance.getMap("doctorMap");
+    IMap<Long,String> doctorMap = hazelcastInstance.getMap("doctorMap");
 
-   public Doctor findDoctor(String name){
-        Long id = doctorMap.get(name);
+   public Doctor findDoctor(Long id){
+        String name  = doctorMap.get(id);
         return new Doctor(id,name);
     }
-    public void PutToDoctorMap(String key,Long value){
+    public void PutToDoctorMap(Long key,String value){
       doctorMap.put(key,value);
     }
 
