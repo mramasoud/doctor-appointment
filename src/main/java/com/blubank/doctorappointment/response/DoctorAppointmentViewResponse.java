@@ -1,17 +1,15 @@
 package com.blubank.doctorappointment.response;
 
-import com.blubank.doctorappointment.dto.AbaseDto;
 import com.blubank.doctorappointment.ordinal.AppointmentStatus;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;
 
-import java.security.PrivateKey;
 import java.time.LocalTime;
 
 @Data
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class DoctorAppointmentViewResponse extends AbaseDto{
+public class DoctorAppointmentViewResponse extends AbaseResponse{
     private long digit;
     @JsonFormat(pattern = "HH:mm")
     private LocalTime startTime;
