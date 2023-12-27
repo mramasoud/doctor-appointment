@@ -14,6 +14,7 @@ import com.blubank.doctorappointment.response.Response;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.transaction.Transactional;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.ArrayList;
@@ -33,49 +34,46 @@ public class DoctorService {
 
     ResourceBundle messages = ResourceBundle.getBundle("HospitalMessages");
     private static final int timePeriods_Min = 30;
-
+    @Transactional
     public Response saveDoctor(DoctorDTO dto) {
         if (cacheService.findDoctor(1L).getName()!= null) {
-            return new Response(CodeProjectEnum.duplicate.getErrorCode(), messages.getString("duplicate"));
+            return new Response(CodeProjectEnum.duplicate.getCode(), messages.getString("duplicate"));
         }
         Doctor doctor = doctorRepository.save(new Doctor(dto.getName()));
         if (doctor.getDoctorsId() != null) {
             cacheService.PutToDoctorMap( doctor.getDoctorsId(),doctor.getName());
-            return new Response(CodeProjectEnum.doctorSaved.getErrorCode(), messages.getString("doctorSaved"));
+            return new Response(CodeProjectEnum.savedItem.getCode(), messages.getString("doctorSaved"));
         } else {
-            return new Response(CodeProjectEnum.serverError.getErrorCode(), messages.getString("serverError"));
+            return new Response(CodeProjectEnum.serverError.getCode(), messages.getString("serverError"));
         }
     }
-
+    @Transactional
     public Response setDoctorDailyWorkSchedule(DoctorAvailabilityDTO dto) {
         Response  response;
         Doctor doctor = cacheService.findDoctor(1L);
-        if (doctor.getDoctorsId() == null) {
-            return new Response(CodeProjectEnum.serverError.getErrorCode(), messages.getString("doctorNotFound"));
+        if (doctor.getName() == null) {
+            return new Response(CodeProjectEnum.notFound.getCode() , messages.getString("doctorNotFound"));
 
         }
         if (appointmentService.findFreeAppointmentByDoctor(doctor, dto.getDayOfMonth()).size() != 0) {
-            return new Response(CodeProjectEnum.serverError.getErrorCode(), messages.getString("duplicateTime"));
-
+            return new Response(CodeProjectEnum.duplicate.getCode(), messages.getString("duplicateTime"));
         }
         try {
             List<Appointment> availableTimePeriods = getAvailableTimePeriods(dto.getDayOfMonth(), dto.getStartTime(), dto.getEndTime(), doctor);
             if (availableTimePeriods.size() == 0) {
-                return new Response(CodeProjectEnum.appointmentNotSaved.getErrorCode(), messages.getString("appointmentNotSaved"));
+                return new Response(CodeProjectEnum.appointmentNotSaved.getCode(), messages.getString("appointmentNotSaved"));
 
             }
             saveDoctorAvailableTime(availableTimePeriods);
-            return new Response(CodeProjectEnum.appointmentSaved.getErrorCode(), availableTimePeriods.size() + messages.getString("appointmentSaved"));
+            return new Response(CodeProjectEnum.savedItem.getCode(), availableTimePeriods.size() + messages.getString("appointmentSaved"));
 
         } catch (Exception exception) {
-            return new Response(CodeProjectEnum.serverError.getErrorCode(), messages.getString("serverError"));
-
+            return new Response(CodeProjectEnum.serverError.getCode(), messages.getString("serverError"));
         }
     }
-
     public List<DoctorAppointmentViewResponse> showDoctorFreeAppointments(LocalDate day) {
         Doctor doctor = cacheService.findDoctor(1L);
-        if (doctor.getDoctorsId() == null) {
+        if (doctor.getName() == null) {
             return new ArrayList<>();
         }
 
@@ -96,8 +94,8 @@ public class DoctorService {
                 })
                 .collect(Collectors.toList());
     }
-
-    private void saveDoctorAvailableTime(List<Appointment> availableTimePeriods) {
+    @Transactional
+     void saveDoctorAvailableTime(List<Appointment> availableTimePeriods) {
         appointmentService.saveAppointment(availableTimePeriods);
     }
 
@@ -114,7 +112,7 @@ public class DoctorService {
         }
         return timePeriods;
     }
-
+    @Transactional
     public Response deleteAppointmentByDoctor(int appointmentNumber, LocalDate day) {
         Doctor doctor = cacheService.findDoctor(1L);
         return appointmentService.deleteAppointment(doctor, appointmentNumber, day);

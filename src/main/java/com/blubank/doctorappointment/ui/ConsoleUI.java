@@ -42,10 +42,13 @@ public class ConsoleUI {
         System.out.println(messages.getString("userPrompt"));
         int userType = scanner.nextInt();
         if (userType == 1) {
+
             handleDoctorActions(scanner);
         } else if (userType == 2) {
+
             handlePatientActions(scanner);
         }
+
     }
     private void handleDoctorActions(Scanner scanner) {
         if(cacheService.findDoctor(1L).getName()==null){

@@ -4,30 +4,28 @@ import lombok.Getter;
 
 @Getter
 public enum CodeProjectEnum{
-    doctorNotFound(404),
-    AppointmentNotFound(404),
-    appointmentSaved(200),
+
+    notFound(404),
+    savedItem(200),
     appointmentReserved(406),
-    doctorSaved(200),
-    appointmentDeleted(200),
-    appointmentNotSaved(200),
+    appointmentDeleted(202),
+    appointmentNotSaved(400),
     serverError(500),
-    duplicateTime(500),
-    duplicate(500);
+    duplicate(409);
 
-    private int errorCode;
+    private int code;
 
 
-    CodeProjectEnum(int errorCode ){
-        this.errorCode = errorCode;
+    CodeProjectEnum(int code){
+        this.code = code;
 
     }
 
-    public int getErrorCode(){
-        return errorCode;
+    public int getCode(){
+        return code;
     }
 
-    public void setErrorCode(int errorCode){
-        this.errorCode = errorCode;
+    public void setCode(int code){
+        this.code = code;
     }
 }

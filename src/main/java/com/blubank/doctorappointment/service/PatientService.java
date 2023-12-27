@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.webjars.NotFoundException;
 
+import javax.transaction.Transactional;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -33,7 +34,7 @@ public class PatientService {
 
     public List<DoctorAppointmentViewResponse> showPatientFreeDoctorAppointments() {
         List<Appointment> appointments = appointmentService.findAll();
-      return   appointments.stream()
+        return appointments.stream()
                 .map(appointment -> {
                     DoctorAppointmentViewResponse response = new DoctorAppointmentViewResponse();
                     response.setDigit(appointments.indexOf(appointment) + 1L);
@@ -51,7 +52,7 @@ public class PatientService {
 
     }
 
-    public  List<DoctorAppointmentViewResponse> findAppointmentByPatient(String phone) {
+    public List<DoctorAppointmentViewResponse> findAppointmentByPatient(String phone) {
         List<DoctorAppointmentViewResponse> responses = new ArrayList<>();
         Optional<Patient> patient = patientRepository.findByPhoneNumber(phone);
         if (patient.isPresent()) {
@@ -63,10 +64,11 @@ public class PatientService {
         return responses;
     }
 
+    @Transactional
     public Appointment getAppointmentForPatient(PatientReservingAppointmentDTO dto) {
         try {
             Doctor doctor = cacheService.findDoctor(1L);
-            Optional.ofNullable(doctor.getDoctorsId()).orElseThrow(() -> new NotFoundException(messages.getString("doctorNotFound")));
+            Optional.ofNullable(doctor.getName()).orElseThrow(() -> new NotFoundException(messages.getString("doctorNotFound")));
             List<Appointment> appointments = appointmentService.findEmptyAppointmentByDoctor(doctor, dto.getDayOfMonth());
             if (appointments.isEmpty()) {
                 throw new NotFoundException(messages.getString("appointmentFreeNotFound"));
@@ -85,47 +87,34 @@ public class PatientService {
         }
     }
 
-    public Response unreserved(Long id){
+    @Transactional
+    public Response unreserved(Long id) {
         try {
             Optional<Appointment> appointmentById = appointmentService.findAppointmentById(id);
             if (appointmentById.isPresent()) {
                 appointmentById.get().setStatus(AppointmentStatus.empty);
                 appointmentService.saveAppointment(appointmentById.get());
                 return new Response("success");
-            }else throw new NotFoundException(messages.getString("appointmentNotFound"));
-        }catch (NotFoundException e){
+            } else throw new NotFoundException(messages.getString("appointmentNotFound"));
+        } catch (NotFoundException e) {
             return new Response(messages.getString("appointmentReservationFailed"));
         }
     }
 
- /*   public AppointmentV2 getReservingAppointmentForView(PatientReservingAppointmentDTO dto) {
-        DoctorV2 doctor = cacheService.findDoctor(dto.getDoctorName());
-        if (doctor.getDoctorsId() == null) {
-            throw new NotFoundException(messages.getString("doctorNotFound"));
-        }
-        List<AppointmentV2> appointments = appointmentService.findEmptyAppointmentByDoctor(doctor, dto.getDayOfMonth());
-        if (appointments.isEmpty()) {
-            throw new NotFoundException(messages.getString("appointmentFreeNotFound"));
-        }
-        AppointmentV2 appointment = appointments.get(dto.getAppointmentDigit() - 1);
-        if (appointment.getStatus() == AppointmentStatus.reserved || appointment.getStatus() == AppointmentStatus.reserving) {
-            throw new NotFoundException(messages.getString("appointmentFreeNotFound"));
-        }
-        reservingAppointment(appointment.getAppointmentsId());
-        return appointment;
-    }
-*/
+    @Transactional
     public void reservingAppointment(Long id) {
         try {
             Optional<Appointment> appointmentById = appointmentService.findAppointmentById(id);
             if (appointmentById.isPresent()) {
                 appointmentById.get().setStatus(AppointmentStatus.reserving);
                 appointmentService.saveAppointment(appointmentById.get());
-            }else throw new NotFoundException(messages.getString("appointmentNotFound"));
-        }catch (NotFoundException e){
+            } else throw new NotFoundException(messages.getString("appointmentNotFound"));
+        } catch (NotFoundException e) {
             throw new NotFoundException(messages.getString("appointmentNotFound"));
         }
     }
+
+    @Transactional
     public DoctorAppointmentViewResponse reserveAppointment(FinalPatientReserveAppointmentDTO dto) {
         DoctorAppointmentViewResponse response = new DoctorAppointmentViewResponse();
         Optional<Appointment> appointment = appointmentService.findAppointmentById(dto.getAppointmentDigit());
@@ -145,6 +134,7 @@ public class PatientService {
         return response;
     }
 
+    @Transactional
     public Patient addPatient(String name, String phone) {
         Optional<Patient> byPhoneNumber = patientRepository.findByPhoneNumber(phone);
         return byPhoneNumber.orElseGet(() -> patientRepository.save(new Patient(name, phone)));

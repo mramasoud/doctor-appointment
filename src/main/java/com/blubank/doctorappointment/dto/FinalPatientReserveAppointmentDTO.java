@@ -7,6 +7,7 @@ import lombok.*;
 @AllArgsConstructor
 @Getter
 @Setter
+
 public class FinalPatientReserveAppointmentDTO extends AbaseDto{
 
     private Long appointmentDigit;

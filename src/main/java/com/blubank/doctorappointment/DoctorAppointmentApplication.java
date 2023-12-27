@@ -19,9 +19,12 @@ public class DoctorAppointmentApplication {
 
     @Autowired
     ConsoleUI consoleUI;
-
     @Scheduled(fixedDelay = 1L)
     void runner() {
         consoleUI.run();
     }
+
+
+
+
 }
