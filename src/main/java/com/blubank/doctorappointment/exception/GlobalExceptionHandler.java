@@ -1,6 +1,7 @@
 package com.blubank.doctorappointment.exception;
 
 import com.hazelcast.org.snakeyaml.engine.v2.exceptions.DuplicateKeyException;
+import com.sun.jdi.request.DuplicateRequestException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -39,7 +40,7 @@ public class GlobalExceptionHandler
     @ExceptionHandler(ValidationException.class)
     public ResponseEntity<Object> handleValidationException(ValidationException ex, WebRequest request) {
         String error = "errorMessage: " + ex.getMessage();
-        return handleExceptionInternal(ex, error, new HttpHeaders(), HttpStatus.NOT_FOUND, request);
+        return handleExceptionInternal(ex, error, new HttpHeaders(), HttpStatus.BAD_REQUEST, request);
     }
 
     @ExceptionHandler(RuntimeException.class)
@@ -48,9 +49,9 @@ public class GlobalExceptionHandler
         return  handleExceptionInternal(ex,error,new HttpHeaders(), HttpStatus.INTERNAL_SERVER_ERROR,request);
     }
 
-    @ExceptionHandler(DuplicateKeyException.class)
+    @ExceptionHandler(DuplicateRequestException.class)
     public ResponseEntity<Object> handleDuplicateEntryException(DuplicateKeyException ex) {
-        return new ResponseEntity<>("Duplicate entry: " + ex.getMessage(), HttpStatus.CONFLICT);
+        return new ResponseEntity<>("Duplicate request: " + ex.getMessage(), HttpStatus.CONFLICT);
     }
 
     @ExceptionHandler(ResponseStatusException.class)

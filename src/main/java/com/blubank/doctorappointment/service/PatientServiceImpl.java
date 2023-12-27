@@ -10,6 +10,7 @@ import com.blubank.doctorappointment.ordinal.AppointmentStatus;
 import com.blubank.doctorappointment.repository.PatientRepository;
 import com.blubank.doctorappointment.response.DoctorAppointmentViewResponse;
 import com.blubank.doctorappointment.response.Response;
+import com.sun.jdi.request.DuplicateRequestException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.webjars.NotFoundException;
@@ -116,11 +117,15 @@ public class PatientServiceImpl implements PatientService{
         try{
             Optional<Appointment> appointmentById = appointmentServiceImpl.findAppointmentById(id);
             if(appointmentById.isPresent()){
-                appointmentById.get().setStatus(AppointmentStatus.reserving);
-                appointmentServiceImpl.saveAppointment(appointmentById.get());
+                if(appointmentById.get().getStatus()==AppointmentStatus.empty){
+                    appointmentById.get().setStatus(AppointmentStatus.reserving);
+                    appointmentServiceImpl.saveAppointment(appointmentById.get());
+                }else throw new DuplicateRequestException(messages.getString("appointmentNotAvailable"));
             }else throw new NotFoundException(messages.getString("appointmentNotFound"));
         }catch(NotFoundException e){
             throw new NotFoundException(messages.getString("appointmentNotFound"));
+        }catch(DuplicateRequestException e){
+            throw new DuplicateRequestException(messages.getString("appointmentNotAvailable"));
         }
     }
 

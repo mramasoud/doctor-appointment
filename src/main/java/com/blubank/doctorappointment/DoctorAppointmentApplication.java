@@ -17,6 +17,7 @@ public class DoctorAppointmentApplication {
         SpringApplication.run(DoctorAppointmentApplication.class, args);
     }
 
+/*
     @Autowired
     ConsoleUI consoleUI;
     @Scheduled(fixedDelay = 1)
@@ -24,6 +25,7 @@ public class DoctorAppointmentApplication {
         consoleUI.run();
     }
 
+*/
 
 
 
