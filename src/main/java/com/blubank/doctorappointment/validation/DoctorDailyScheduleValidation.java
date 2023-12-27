@@ -13,27 +13,43 @@ import java.util.ResourceBundle;
 public class DoctorDailyScheduleValidation implements ValidationService<DoctorAvailabilityDTO,DoctorDailyScheduleResponse>{
     ResourceBundle messages = ResourceBundle.getBundle("HospitalMessages");
 
-    @Override
-    public boolean validate(DoctorAvailabilityDTO dto , List<DoctorDailyScheduleResponse> response){
-        return false;
-    }
 
     @Override
     public boolean validate(DoctorAvailabilityDTO request , DoctorDailyScheduleResponse response){
-        DoctorDailyScheduleResponse doctorDailyScheduleResponse = new DoctorDailyScheduleResponse();
-        if(! DateUtil.dateTimeIsValid(request.getStartTime()))
-            new DoctorDailyScheduleResponse(DateTimeErrorCodeEnum.startTimeNotValid.getErrorCode() , messages.getString("startTimeNotValid"));
-        if(! DateUtil.dateTimeIsValid(request.getEndTime()))
-            new DoctorDailyScheduleResponse(DateTimeErrorCodeEnum.endTimeNotValid.getErrorCode() , messages.getString("endTimeNotValid"));
-        if(! DateUtil.dateTimeIsValid(request.getStartTime() , request.getEndTime()))
-            new DoctorDailyScheduleResponse(DateTimeErrorCodeEnum.timeNotValid.getErrorCode() , messages.getString("timeNotValid"));
-        if(! DateUtil.timeIsValid(request.getStartTime() , request.getEndTime()))
-            new DoctorDailyScheduleResponse(DateTimeErrorCodeEnum.endTimeBeforeStartTime.getErrorCode() , messages.getString("endTimeBeforeStartTime"));
-        if(! DateUtil.dayOfMonthValidation(request.getDayOfMonth()))
-            new DoctorDailyScheduleResponse(DateTimeErrorCodeEnum.dateNotValid.getErrorCode() , messages.getString("dateNotValid"));
-        if(DateUtil.equalsTime(request.getStartTime() , request.getEndTime()))
-            new DoctorDailyScheduleResponse(DateTimeErrorCodeEnum.equalsTime.getErrorCode() , messages.getString("equalsTime"));
-        return doctorDailyScheduleResponse.getMessage() == null;
+        boolean result= true;
+
+        if(! DateUtil.dateTimeIsValid(request.getStartTime())){
+            response.setCode(DateTimeErrorCodeEnum.startTimeNotValid.getErrorCode());
+            response.setMessage(messages.getString("startTimeNotValid"));
+            result = false;
+        }
+        if(! DateUtil.dateTimeIsValid(request.getEndTime())){
+            response.setCode(DateTimeErrorCodeEnum.endTimeNotValid.getErrorCode());
+            response.setMessage(messages.getString("endTimeNotValid"));
+            result = false;
+        }
+        if(! DateUtil.dateTimeIsValid(request.getStartTime() , request.getEndTime())){
+            response.setCode(DateTimeErrorCodeEnum.timeNotValid.getErrorCode());
+            response.setMessage(messages.getString("timeNotValid"));
+            result = false;
+        }
+        if(! DateUtil.timeIsValid(request.getStartTime() , request.getEndTime())){
+            response.setCode(DateTimeErrorCodeEnum.endTimeBeforeStartTime.getErrorCode());
+            response.setMessage(messages.getString("endTimeBeforeStartTime"));
+            result = false;
+
+        }
+        if(! DateUtil.dayOfMonthValidation(request.getDayOfMonth())){
+            response.setCode(DateTimeErrorCodeEnum.dateNotValid.getErrorCode());
+            response.setMessage(messages.getString("dateNotValid"));
+            result = false;
+        }
+        if(DateUtil.equalsTime(request.getStartTime() , request.getEndTime())){
+            response.setCode(DateTimeErrorCodeEnum.equalsTime.getErrorCode());
+            response.setMessage(messages.getString("equalsTime"));
+            result = false;
+        }
+        return result;
     }
 }
 

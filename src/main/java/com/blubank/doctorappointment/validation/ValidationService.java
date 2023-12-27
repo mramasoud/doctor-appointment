@@ -8,7 +8,5 @@ import java.util.List;
 
 public interface ValidationService<T extends AbaseDto,R extends AbaseResponse>{
 
-
-    public boolean validate(T t , List<R> response);
     public boolean validate(T t , R response);
 }

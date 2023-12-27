@@ -1,183 +1,150 @@
-/*
 package com.blubank.doctorappointment;
 
 import com.blubank.doctorappointment.controller.DoctorController;
+import com.blubank.doctorappointment.controller.PatientController;
 import com.blubank.doctorappointment.dto.DoctorAvailabilityDTO;
 import com.blubank.doctorappointment.dto.DoctorDTO;
+import com.blubank.doctorappointment.dto.FinalPatientReserveAppointmentDTO;
+import com.blubank.doctorappointment.dto.PatientReservingAppointmentDTO;
+import com.blubank.doctorappointment.response.DeleteAppointmentResponse;
 import com.blubank.doctorappointment.response.DoctorAppointmentViewResponse;
-import com.blubank.doctorappointment.response.Response;
-import com.blubank.doctorappointment.response.ResponseData;
+import com.blubank.doctorappointment.response.DoctorDailyScheduleResponse;
 import com.blubank.doctorappointment.service.DoctorService;
-import com.blubank.doctorappointment.validation.DoctorValidationService;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.test.annotation.Rollback;
 
+import javax.transaction.Transactional;
 import java.time.LocalDate;
-import java.util.ArrayList;
+import java.time.LocalTime;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.any;
-import static org.mockito.Mockito.when;
 
 @SpringBootTest
 @AutoConfigureMockMvc
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
-public class DoctorControllerTest {
+public class DoctorControllerTest{
 
-    @InjectMocks
+    @Autowired
     private DoctorController doctorController;
+    @Autowired
+    private PatientController patientController;
 
-    @Mock
-    private DoctorValidationService doctorValidationService;
-
-    @Mock
+    @Autowired
     private DoctorService doctorService;
 
+
     @Test
-    public void testDoctorDailySchedule_ValidationFail() {
-        // Arrange
+    @Rollback
+    @Transactional
+    public void doctorAddsOpenTimes_EndDateBeforeStartDate_ErrorShown(){
+        doctorController.addNewDoctor(new DoctorDTO("DrShokohiFard"));
         DoctorAvailabilityDTO dto = new DoctorAvailabilityDTO();
-        List<Response> responses = new ArrayList<>();
-        responses.add(new Response("error", "Validation error"));
-        when(doctorValidationService.validate(dto, responses)).thenReturn(false);
-
-        // Act
-        ResponseEntity<ResponseData<Response>> result = doctorController.doctorDailySchedule(dto);
-
-        // Assert
-        assertEquals(HttpStatus.NOT_ACCEPTABLE, result.getStatusCode());
-        assertEquals("validation fail", result.getBody().getMessage());
-        assertEquals(responses, result.getBody().getBody());
+        dto.setDayOfMonth(LocalDate.of(2023 , 12 , 27));
+        dto.setStartTime(LocalTime.of(9 , 00));
+        dto.setEndTime(LocalTime.of(7 , 00));
+        ResponseEntity<DoctorDailyScheduleResponse> response = doctorController.doctorDailySchedule(dto);
+        assertEquals(HttpStatus.NOT_ACCEPTABLE , response.getStatusCode());
+        assertEquals(response.getBody().getMessage() , "endTime is before startTime.");
     }
 
     @Test
-    public void testDoctorDailySchedule_AppointmentNotSaved() {
-        // Arrange
+    @Rollback
+    @Transactional
+    public void doctorAddsOpenTimes_PeriodLessThan30Minutes_NoTimeAdded(){
+        doctorController.addNewDoctor(new DoctorDTO("DrShokohiFard"));
         DoctorAvailabilityDTO dto = new DoctorAvailabilityDTO();
-        List<Response> responses = new ArrayList<>();
-        when(doctorValidationService.validate(dto, responses)).thenReturn(true);
-        when(doctorService.setDoctorDailyWorkSchedule(dto)).thenReturn(new Response("error", "Appointment not saved"));
-
-        // Act
-        ResponseEntity<ResponseData<Response>> result = doctorController.doctorDailySchedule(dto);
-
-        // Assert
-        assertEquals(HttpStatus.NOT_ACCEPTABLE, result.getStatusCode());
-        assertEquals("appointmentNotSaved", result.getBody().getMessage());
-        assertEquals(null, result.getBody().getBody());
+        dto.setDayOfMonth(LocalDate.of(2023 , 12 , 27));
+        dto.setStartTime(LocalTime.of(9 , 00));
+        dto.setEndTime(LocalTime.of(9 , 20));//set the end time less than 30 minutes apart from the start time
+        ResponseEntity<DoctorDailyScheduleResponse> response = doctorController.doctorDailySchedule(dto);
+        assertEquals(HttpStatus.NOT_ACCEPTABLE , response.getStatusCode());
+        assertEquals(response.getBody().getMessage() , "A 30-minute time period was not found on a working day.");
     }
 
+
     @Test
-    public void testDoctorDailySchedule_AppointmentAlreadySaved() {
-        // Arrange
+    @Rollback
+    @Transactional
+    public void doctorCanView30MinutesAppointments_NoAppointments_EmptyListShown(){
+        doctorController.addNewDoctor(new DoctorDTO("DrShokohiFard"));
+        LocalDate day = LocalDate.of(2023 , 12 , 27);
+        ResponseEntity<List<DoctorAppointmentViewResponse>> response = doctorController.getEmptyAppointmentTime(day);
+        assertEquals(HttpStatus.NOT_FOUND , response.getStatusCode());
+        assertTrue(response.getBody().isEmpty());
+    }
+
+
+    @Test
+    @Rollback
+    @Transactional
+    public void doctorCanView30MinutesAppointments_SomeAppointments_PatientInfoShown(){
+        doctorController.addNewDoctor(new DoctorDTO("DrShokohiFard"));
         DoctorAvailabilityDTO dto = new DoctorAvailabilityDTO();
-        List<Response> responses = new ArrayList<>();
-        when(doctorValidationService.validate(dto, responses)).thenReturn(true);
-        when(doctorService.setDoctorDailyWorkSchedule(dto)).thenReturn(new Response("success", "Appointment saved"));
+        LocalDate day = LocalDate.of(2023 , 12 , 27);
+        dto.setDayOfMonth(day);
+        dto.setStartTime(LocalTime.of(9 , 0));
+        dto.setEndTime(LocalTime.of(10 , 25));
+        doctorController.doctorDailySchedule(dto);
+        FinalPatientReserveAppointmentDTO reservd = new FinalPatientReserveAppointmentDTO(1L , "amir" , "09376710620");
+        patientController.reservedAppointmentForPatient(reservd);
+        ResponseEntity<List<DoctorAppointmentViewResponse>> response = doctorController.getEmptyAppointmentTime(day);
+        assertEquals(HttpStatus.OK , response.getStatusCode());
+        assertNotNull(response.getBody().get(0).getPatientPhoneNumber());
+    }
 
-        // Act
-        ResponseEntity<ResponseData<Response>> result = doctorController.doctorDailySchedule(dto);
 
-        // Assert
-        assertEquals(HttpStatus.OK, result.getStatusCode());
-        assertEquals("appointmentSaved", result.getBody().getMessage());
-        assertNotNull(result.getBody().getBody());
+    @Test
+    @Rollback
+    @Transactional
+    public void testDeleteAppointment_NoOpenAppointment_404ErrorShown(){
+        doctorController.addNewDoctor(new DoctorDTO("DrShokohiFard"));
+        LocalDate day = LocalDate.of(2023 , 12 , 27);
+        ResponseEntity<DeleteAppointmentResponse> response = doctorController.deleteAppointment(1 , day);
+        assertEquals(HttpStatus.NOT_FOUND , response.getStatusCode());
+        assertEquals(response.getBody().getMessage() , "Appointment Not Found.");
     }
 
     @Test
-    public void testGetEmptyAppointmentTime_NoAppointmentsFound() {
-        // Arrange
-        LocalDate day = LocalDate.now();
-
-        // Act
-        ResponseEntity<ResponseData<DoctorAppointmentViewResponse>> result = doctorController.getEmptyAppointmentTime(day);
-
-        // Assert
-        assertEquals(HttpStatus.NOT_FOUND, result.getStatusCode());
-        assertEquals("noAppointmentsFound", result.getBody().getMessage());
-        assertNull(result.getBody().getBody());
+    @Rollback
+    @Transactional
+    public void testDeleteAppointment_AppointmentTaken_406ErrorShown(){
+        doctorController.addNewDoctor(new DoctorDTO("DrShokohiFard"));
+        DoctorAvailabilityDTO dto = new DoctorAvailabilityDTO();
+        LocalDate day = LocalDate.of(2023 , 12 , 27);
+        dto.setDayOfMonth(day);
+        dto.setStartTime(LocalTime.of(9 , 0));
+        dto.setEndTime(LocalTime.of(10 , 25));
+        doctorController.doctorDailySchedule(dto);
+        FinalPatientReserveAppointmentDTO reservd = new FinalPatientReserveAppointmentDTO(1L , "amir" , "09376710620");
+        patientController.reservedAppointmentForPatient(reservd);
+        ResponseEntity<DeleteAppointmentResponse> response = doctorController.deleteAppointment(1 , day);
+        assertEquals(HttpStatus.NOT_ACCEPTABLE , response.getStatusCode());
+        assertEquals(response.getBody().getMessage() , "cannot delete appointment because appointment is reserved.");
     }
 
     @Test
-    public void testGetEmptyAppointmentTime_AppointmentsFound() {
-        // Arrange
-        List<DoctorAppointmentViewResponse> appointments = new ArrayList<>();
-        appointments.add(new DoctorAppointmentViewResponse("doctor1", "patient1", LocalDate.now(), "startTime", "endTime"));
-
-        when(doctorService.showDoctorFreeAppointments(any(LocalDate.class)).thenReturn(appointments);
-
-        // Act
-        ResponseEntity<ResponseData<DoctorAppointmentViewResponse>> result = doctorController.getEmptyAppointmentTime(LocalDate.now());
-
-        // Assert
-        assertEquals(HttpStatus.OK, result.getStatusCode());
-        assertEquals("availableAppointments", result.getBody().getMessage());
-        assertNotNull(result.getBody().getBody());
-        assertEquals(1, result.getBody().getBody().size());
+    @Rollback
+    @Transactional
+    public void testDeleteAppointment_ConcurrencyCheck_DoctorDeletingSameAppointment_404ErrorShown() {
+        doctorController.addNewDoctor(new DoctorDTO("DrShokohiFard"));
+        DoctorAvailabilityDTO dto = new DoctorAvailabilityDTO();
+        LocalDate day = LocalDate.of(2023 , 12 , 27);
+        dto.setDayOfMonth(day);
+        dto.setStartTime(LocalTime.of(9 , 0));
+        dto.setEndTime(LocalTime.of(10 , 25));
+        doctorController.doctorDailySchedule(dto);
+        PatientReservingAppointmentDTO reservingAppointmentDTO = new PatientReservingAppointmentDTO(day,1);
+        patientController.reservingAppointmentForPatient(reservingAppointmentDTO);
+        ResponseEntity<DeleteAppointmentResponse> response = doctorController.deleteAppointment(1 , day);
+        assertEquals(HttpStatus.NOT_ACCEPTABLE , response.getStatusCode());
+        assertEquals(response.getBody().getMessage() , "cannot delete appointment because appointment is reserved.");
     }
-
-    @Test
-    public void testAddNewDoctor_Success() {
-        // Arrange
-        DoctorDTO dto = new DoctorDTO();
-
-        // Act
-        ResponseEntity<Response> result = doctorController.addNewDoctor(dto);
-
-        // Assert
-        assertEquals(HttpStatus.OK, result.getStatusCode());
-        assertNotNull(result.getBody());
-    }
-
-    @Test
-    public void testAddNewDoctor_Failure() {
-        // Arrange
-        DoctorDTO dto = new DoctorDTO();
-        dto.setFirstName("John");
-        dto.setLastName("Doe");
-        dto.setEmail("John.Doe@example.com");
-        dto.setPassword("password");
-
-        // Act
-        ResponseEntity<Response> result = doctorController.addNewDoctor(dto);
-
-        // Assert
-        assertEquals(HttpStatus.BAD_REQUEST, result.getStatusCode());
-        assertEquals("Invalid request", result.getBody().getMessage());
-        assertNull(result.getBody().getBody());
-    }
-
-    @Test
-    public void testDeleteAppointment_AppointmentNotFound() {
-        // Arrange
-        int number = 1;
-        LocalDate day = LocalDate.now();
-
-        // Act
-        ResponseEntity<ResponseData<Response>> result = doctorController.deleteAppointment(number, day);
-
-        // Assert
-        assertEquals(HttpStatus.NOT_FOUND, result.getStatusCode());
-        assertEquals("noAppointmentsFound", result.getBody().getMessage());
-        assertNull(result.getBody().getBody());
-    }
-
-    @Test
-    public void testDeleteAppointment_AppointmentFound() {
-        // Arrange
-        int number = 1;
-        LocalDate day = LocalDate.now();
-        DoctorAppointment doctorAppointment = new DoctorAppointment();
-        doctorAppointment.setDoctorId(number);
-        doctorAppointment.setDate(day);
-
-        when(doctorService.deleteAppointmentByDoctor(number, day)).thenReturn(doctorAppointment
-*/
+}
