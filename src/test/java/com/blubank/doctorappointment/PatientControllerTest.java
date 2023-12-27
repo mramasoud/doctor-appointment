@@ -132,4 +132,5 @@ public class PatientControllerTest {
         assertEquals(HttpStatus.ACCEPTED, result.getStatusCode());
         assertEquals(messages.getString("reserveAppointment"), result.getBody().getMessage());
     }
-}*/
+}
+*/

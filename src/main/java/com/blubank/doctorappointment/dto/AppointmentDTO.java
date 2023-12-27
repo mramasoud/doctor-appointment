@@ -1,17 +1,27 @@
 package com.blubank.doctorappointment.dto;
 
 import com.blubank.doctorappointment.ordinal.AppointmentStatus;
-import lombok.Data;
+import com.fasterxml.jackson.annotation.JsonFormat;
+import lombok.*;
+import org.springframework.format.annotation.DateTimeFormat;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
 
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Getter
+@Setter
 public class AppointmentDTO {
     private Long id;
+    @JsonFormat(pattern = "HH:mm")
     private LocalTime startTime;
+    @JsonFormat(pattern = "HH:mm")
     private LocalTime endTime;
+    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
     private LocalDate dayOfMonth;
+
     private PatientDTO patientDTO;
     private DoctorDTO doctorDTO;
     private AppointmentStatus status;

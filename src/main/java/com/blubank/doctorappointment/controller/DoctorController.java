@@ -39,14 +39,18 @@ public class DoctorController {
             return new ResponseEntity<>(responseData, responseData.getStatusCode());
         }
         Response response = doctorService.setDoctorDailyWorkSchedule(dto);
-        if (response.getCode() == CodeProjectEnum.appointmentNotSaved.getErrorCode()) {
+        if(response.getCode() == CodeProjectEnum.appointmentNotSaved.getCode()){
             responseData.setResult(response);
             responseData.setStatusCode(HttpStatus.NOT_ACCEPTABLE);
             responseData.setMessage(messages.getString("appointmentNotSaved"));
-        } else if (response.getCode() == CodeProjectEnum.serverError.getErrorCode()) {
+        }else if(response.getCode() == CodeProjectEnum.serverError.getCode()){
             responseData.setResult(response);
             responseData.setStatusCode(HttpStatus.INTERNAL_SERVER_ERROR);
             responseData.setMessage(messages.getString("serverError"));
+        }else if(response.getCode() == CodeProjectEnum.notFound.getCode()){
+            responseData.setResult(response);
+            responseData.setStatusCode(HttpStatus.NOT_FOUND);
+            responseData.setMessage(messages.getString("doctorNotFound"));
         }else{
             responseData.setResult(response);
             responseData.setStatusCode(HttpStatus.OK);
@@ -81,15 +85,15 @@ public class DoctorController {
     public ResponseEntity<ResponseData<Response>> deleteAppointment(@PathVariable int number, @PathVariable @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)  LocalDate day) {
         ResponseData<Response>  responseData =new ResponseData<>();
         Response response = doctorService.deleteAppointmentByDoctor(number, day);
-        if(response.getCode()==CodeProjectEnum.AppointmentNotFound.getErrorCode()) {
+        if(response.getCode() == CodeProjectEnum.notFound.getCode()){
             responseData.setBody(null);
             responseData.setStatusCode(HttpStatus.NOT_FOUND);
             responseData.setMessage(messages.getString("noAppointmentsFound"));
-        } else if(response.getCode() == CodeProjectEnum.appointmentReserved.getErrorCode()){
+        }else if(response.getCode() == CodeProjectEnum.appointmentReserved.getCode()){
             responseData.setBody(null);
             responseData.setStatusCode(HttpStatus.NOT_ACCEPTABLE);
             responseData.setMessage(messages.getString("appointmentReserved"));
-        }else {
+        }else{
             responseData.setBody(null);
             responseData.setStatusCode(HttpStatus.OK);
             responseData.setMessage(messages.getString("appointmentDeleted"));

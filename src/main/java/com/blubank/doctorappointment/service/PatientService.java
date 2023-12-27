@@ -68,7 +68,7 @@ public class PatientService {
     public Appointment getAppointmentForPatient(PatientReservingAppointmentDTO dto) {
         try {
             Doctor doctor = cacheService.findDoctor(1L);
-            Optional.ofNullable(doctor.getDoctorsId()).orElseThrow(() -> new NotFoundException(messages.getString("doctorNotFound")));
+            Optional.ofNullable(doctor.getName()).orElseThrow(() -> new NotFoundException(messages.getString("doctorNotFound")));
             List<Appointment> appointments = appointmentService.findEmptyAppointmentByDoctor(doctor, dto.getDayOfMonth());
             if (appointments.isEmpty()) {
                 throw new NotFoundException(messages.getString("appointmentFreeNotFound"));

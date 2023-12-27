@@ -179,4 +179,5 @@ public class DoctorControllerTest {
         doctorAppointment.setDoctorId(number);
         doctorAppointment.setDate(day);
 
-        when(doctorService.deleteAppointmentByDoctor(number, day)).thenReturn(doctorAppointment*/
+        when(doctorService.deleteAppointmentByDoctor(number, day)).thenReturn(doctorAppointment
+*/

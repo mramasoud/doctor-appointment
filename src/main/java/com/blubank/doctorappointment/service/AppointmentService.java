@@ -52,16 +52,16 @@ public class AppointmentService {
     public Response deleteAppointment(Doctor doctor , int appointmentNumber , LocalDate day){
         List<Appointment> appointments = findFreeAppointmentByDoctor(doctor , day);
         if(appointments.isEmpty() || appointmentNumber < 1 || appointmentNumber > appointments.size()){
-            return new Response(CodeProjectEnum.AppointmentNotFound.getErrorCode() , messages.getString("appointmentNotFound"));
+            return new Response(CodeProjectEnum.notFound.getCode() , messages.getString("appointmentNotFound"));
         }
         Appointment appointment = appointments.get(appointmentNumber - 1);
         if(appointment.getStatus() == AppointmentStatus.reserving){
-            return new Response(CodeProjectEnum.appointmentReserved.getErrorCode() ,messages.getString("appointmentReserved"));
+            return new Response(CodeProjectEnum.appointmentReserved.getCode() ,messages.getString("appointmentReserved"));
         }
         if(appointment.getStatus() == AppointmentStatus.reserved){
-            return new Response(CodeProjectEnum.appointmentReserved.getErrorCode() , messages.getString("appointmentReserved"));
+            return new Response(CodeProjectEnum.appointmentReserved.getCode() , messages.getString("appointmentReserved"));
         }
         appointmentRepository.delete(appointment);
-        return new Response(CodeProjectEnum.appointmentDeleted.getErrorCode() , messages.getString("appointmentDeleted"));
+        return new Response(CodeProjectEnum.appointmentDeleted.getCode() , messages.getString("appointmentDeleted"));
     }
 }

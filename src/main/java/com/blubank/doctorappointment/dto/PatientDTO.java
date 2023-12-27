@@ -1,10 +1,14 @@
 package com.blubank.doctorappointment.dto;
 
-import lombok.Data;
+import lombok.*;
 
 import javax.validation.constraints.Pattern;
 
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Getter
+@Setter
 public class PatientDTO extends AbaseDto{
     private Long id;
     @Pattern(regexp = "[a-zA-Z]+")

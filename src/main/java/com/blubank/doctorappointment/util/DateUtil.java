@@ -23,7 +23,7 @@ public class DateUtil{
     }
 
     public static boolean dayOfMonthValidation(LocalDate day){
-        return day.isAfter(LocalDate.now());
+        return day.isAfter(LocalDate.now().minusDays(1));
     }
 
     public static Date dateConvertor(LocalTime time){

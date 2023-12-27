@@ -37,45 +37,43 @@ public class DoctorService {
     @Transactional
     public Response saveDoctor(DoctorDTO dto) {
         if (cacheService.findDoctor(1L).getName()!= null) {
-            return new Response(CodeProjectEnum.duplicate.getErrorCode(), messages.getString("duplicate"));
+            return new Response(CodeProjectEnum.duplicate.getCode(), messages.getString("duplicate"));
         }
         Doctor doctor = doctorRepository.save(new Doctor(dto.getName()));
         if (doctor.getDoctorsId() != null) {
             cacheService.PutToDoctorMap( doctor.getDoctorsId(),doctor.getName());
-            return new Response(CodeProjectEnum.doctorSaved.getErrorCode(), messages.getString("doctorSaved"));
+            return new Response(CodeProjectEnum.savedItem.getCode(), messages.getString("doctorSaved"));
         } else {
-            return new Response(CodeProjectEnum.serverError.getErrorCode(), messages.getString("serverError"));
+            return new Response(CodeProjectEnum.serverError.getCode(), messages.getString("serverError"));
         }
     }
     @Transactional
     public Response setDoctorDailyWorkSchedule(DoctorAvailabilityDTO dto) {
         Response  response;
         Doctor doctor = cacheService.findDoctor(1L);
-        if (doctor.getDoctorsId() == null) {
-            return new Response(CodeProjectEnum.serverError.getErrorCode(), messages.getString("doctorNotFound"));
+        if (doctor.getName() == null) {
+            return new Response(CodeProjectEnum.notFound.getCode() , messages.getString("doctorNotFound"));
 
         }
         if (appointmentService.findFreeAppointmentByDoctor(doctor, dto.getDayOfMonth()).size() != 0) {
-            return new Response(CodeProjectEnum.serverError.getErrorCode(), messages.getString("duplicateTime"));
-
+            return new Response(CodeProjectEnum.duplicate.getCode(), messages.getString("duplicateTime"));
         }
         try {
             List<Appointment> availableTimePeriods = getAvailableTimePeriods(dto.getDayOfMonth(), dto.getStartTime(), dto.getEndTime(), doctor);
             if (availableTimePeriods.size() == 0) {
-                return new Response(CodeProjectEnum.appointmentNotSaved.getErrorCode(), messages.getString("appointmentNotSaved"));
+                return new Response(CodeProjectEnum.appointmentNotSaved.getCode(), messages.getString("appointmentNotSaved"));
 
             }
             saveDoctorAvailableTime(availableTimePeriods);
-            return new Response(CodeProjectEnum.appointmentSaved.getErrorCode(), availableTimePeriods.size() + messages.getString("appointmentSaved"));
+            return new Response(CodeProjectEnum.savedItem.getCode(), availableTimePeriods.size() + messages.getString("appointmentSaved"));
 
         } catch (Exception exception) {
-            return new Response(CodeProjectEnum.serverError.getErrorCode(), messages.getString("serverError"));
-
+            return new Response(CodeProjectEnum.serverError.getCode(), messages.getString("serverError"));
         }
     }
     public List<DoctorAppointmentViewResponse> showDoctorFreeAppointments(LocalDate day) {
         Doctor doctor = cacheService.findDoctor(1L);
-        if (doctor.getDoctorsId() == null) {
+        if (doctor.getName() == null) {
             return new ArrayList<>();
         }
 

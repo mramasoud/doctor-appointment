@@ -17,23 +17,17 @@ public class DoctorValidationService implements ValidationService<DoctorAvailabi
     @Override
     public boolean validate(DoctorAvailabilityDTO dto , List<Response> responses){
         if(! DateUtil.dateTimeIsValid(dto.getStartTime()))
-          //  throw new ValidationException(messages.getString("startTimeNotValid"));
-            responses.add(new Response(DateTimeErrorCodeEnum.startTimeNotValid.getErrorCode() , DateTimeErrorCodeEnum.startTimeNotValid.getErrorDescription()));
+            responses.add(new Response(DateTimeErrorCodeEnum.startTimeNotValid.getErrorCode() , messages.getString("startTimeNotValid")));
         if(! DateUtil.dateTimeIsValid(dto.getEndTime()))
-            //throw new ValidationException(messages.getString("endTimeNotValid"));
-            responses.add(new Response(DateTimeErrorCodeEnum.endTimeNotValid.getErrorCode() , DateTimeErrorCodeEnum.endTimeNotValid.getErrorDescription()));
+            responses.add(new Response(DateTimeErrorCodeEnum.endTimeNotValid.getErrorCode() , messages.getString("endTimeNotValid")));
         if(! DateUtil.dateTimeIsValid(dto.getStartTime() , dto.getEndTime()))
-           // throw new ValidationException(messages.getString("timeNotValid"));
-            responses.add(new Response(DateTimeErrorCodeEnum.timeNotValid.getErrorCode() , DateTimeErrorCodeEnum.timeNotValid.getErrorDescription()));
+            responses.add(new Response(DateTimeErrorCodeEnum.timeNotValid.getErrorCode() , messages.getString("timeNotValid")));
         if(! DateUtil.timeIsValid(dto.getStartTime() , dto.getEndTime()))
-            //throw new ValidationException(messages.getString("endTimeBeforeStartTime"));
-            responses.add(new Response(DateTimeErrorCodeEnum.endTimeBeforeStartTime.getErrorCode() , DateTimeErrorCodeEnum.endTimeBeforeStartTime.getErrorDescription()));
+            responses.add(new Response(DateTimeErrorCodeEnum.endTimeBeforeStartTime.getErrorCode() , messages.getString("endTimeBeforeStartTime")));
         if(! DateUtil.dayOfMonthValidation(dto.getDayOfMonth()))
-           // throw new ValidationException(messages.getString("dateNotValid"));
-            responses.add(new Response(DateTimeErrorCodeEnum.dateNotValid.getErrorCode() ,DateTimeErrorCodeEnum.dateNotValid.getErrorDescription()));
+            responses.add(new Response(DateTimeErrorCodeEnum.dateNotValid.getErrorCode() ,messages.getString("dateNotValid")));
         if(DateUtil.equalsTime(dto.getStartTime(),dto.getEndTime()))
-           // throw new ValidationException(messages.getString("equalsTime"));
-            responses.add(new Response(DateTimeErrorCodeEnum.equalsTime.getErrorCode() ,DateTimeErrorCodeEnum.equalsTime.getErrorDescription()));
+            responses.add(new Response(DateTimeErrorCodeEnum.equalsTime.getErrorCode() ,messages.getString("equalsTime")));
         return responses.size() == 0;
     }
 }
