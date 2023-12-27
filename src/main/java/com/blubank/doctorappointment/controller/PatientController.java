@@ -24,66 +24,46 @@ public class PatientController {
     ResourceBundle messages = ResourceBundle.getBundle("HospitalMessages");
 
     @GetMapping("/all")
-    public ResponseEntity<ResponseData<DoctorAppointmentViewResponse>> getFreeAppointment() {
+    public ResponseEntity<List<DoctorAppointmentViewResponse>> getFreeAppointment() {
         List<DoctorAppointmentViewResponse> doctorAppointmentViewResponse = patientServiceImpl.showPatientFreeDoctorAppointments();
-        ResponseData<DoctorAppointmentViewResponse>   responseData =new ResponseData<>();
         if (doctorAppointmentViewResponse.isEmpty()) {
-            responseData.setBody(doctorAppointmentViewResponse);
-            responseData.setStatusCode(HttpStatus.NOT_FOUND);
-            responseData.setMessage(messages.getString("appointmentFreeNotFound"));
+            return new ResponseEntity<>(doctorAppointmentViewResponse, HttpStatus.NOT_FOUND);
         }else{
-            responseData.setBody(doctorAppointmentViewResponse);
-            responseData.setStatusCode(HttpStatus.OK);
-            responseData.setMessage(messages.getString("availableAppointments"));
+            return new ResponseEntity<>(doctorAppointmentViewResponse,HttpStatus.OK);
+
         }
-            return new ResponseEntity<>(responseData, responseData.getStatusCode());
+
     }
 
     @GetMapping("/{phoneNumber}")
-    public ResponseEntity<ResponseData<DoctorAppointmentViewResponse>> getAppointment(@PathVariable String phoneNumber) {
+    public ResponseEntity<List<DoctorAppointmentViewResponse>> getAppointment(@PathVariable String phoneNumber) {
         List<DoctorAppointmentViewResponse> appointmentByPatient = patientServiceImpl.findAppointmentByPatient(phoneNumber);
-        ResponseData<DoctorAppointmentViewResponse> responseData = new ResponseData<>();
         if (appointmentByPatient.isEmpty()) {
-            responseData.setBody(appointmentByPatient);
-            responseData.setStatusCode(HttpStatus.NOT_FOUND);
-            responseData.setMessage(messages.getString("noAppointmentsFoundForPatient"));
-
+            return new ResponseEntity<>(appointmentByPatient, HttpStatus.NOT_FOUND);
         }else {
-            responseData.setBody(appointmentByPatient);
-            responseData.setStatusCode(HttpStatus.OK);
-            responseData.setMessage(messages.getString("availableAppointments"));
+            return new ResponseEntity<>(appointmentByPatient, HttpStatus.OK);
         }
-        return new ResponseEntity<>(responseData, responseData.getStatusCode());
-
     }
 
 
     @PostMapping("/reserve")
-    public ResponseEntity<ResponseData<DoctorAppointmentViewResponse>> reservingAppointmentForPatient(@RequestBody PatientReservingAppointmentDTO dto) {
+    public ResponseEntity<String> reservingAppointmentForPatient(@RequestBody PatientReservingAppointmentDTO dto) {
         Appointment appointment = patientServiceImpl.getAppointmentForPatient(dto);
-        ResponseData<DoctorAppointmentViewResponse> responseData = new ResponseData<>();
         if (appointment==null) {
-            responseData.setStatusCode(HttpStatus.NOT_ACCEPTABLE);
-            responseData.setMessage(messages.getString("appointmentReservationFailed"));
+            return new ResponseEntity<>("Appointment reservation failed.", HttpStatus.NOT_ACCEPTABLE);
         }else {
-            responseData.setStatusCode(HttpStatus.ACCEPTED);
-            responseData.setMessage(" appointmentNumber: "+ appointment.getAppointmentsId() + " "  + appointment.getStartTime()+" - " + appointment.getEndTime()+ "    " +messages.getString("confirmAppointmentTime"));
+            return new ResponseEntity<>(" appointmentNumber: "+ appointment.getAppointmentsId() + " "  + appointment.getStartTime()+" - " + appointment.getEndTime()+ "    " +messages.getString("confirmAppointmentTime"), HttpStatus.OK);
         }
-        return new ResponseEntity<>(responseData, responseData.getStatusCode());
     }
 
     @PostMapping("/final")
-    public ResponseEntity<ResponseData<DoctorAppointmentViewResponse>> reservedAppointmentForPatient(@RequestBody FinalPatientReserveAppointmentDTO dto) {
+    public ResponseEntity<DoctorAppointmentViewResponse> reservedAppointmentForPatient(@RequestBody FinalPatientReserveAppointmentDTO dto) {
 
-        DoctorAppointmentViewResponse response = patientServiceImpl.reserveAppointment(dto);
-        ResponseData<DoctorAppointmentViewResponse> responseData = new ResponseData<>();
-        if (response==null) {
-            responseData.setStatusCode(HttpStatus.NOT_ACCEPTABLE);
-            responseData.setMessage(messages.getString("appointmentReservationFailed"));
+        DoctorAppointmentViewResponse doctorAppointmentViewResponse = patientServiceImpl.reserveAppointment(dto);
+        if (doctorAppointmentViewResponse==null) {
+            return new ResponseEntity<>(doctorAppointmentViewResponse, HttpStatus.NOT_ACCEPTABLE);
         }else {
-            responseData.setStatusCode(HttpStatus.ACCEPTED);
-            responseData.setMessage(messages.getString("reserveAppointment"));
+            return new ResponseEntity<>(doctorAppointmentViewResponse, HttpStatus.ACCEPTED);
         }
-        return new ResponseEntity<>(responseData, responseData.getStatusCode());
     }
 }
