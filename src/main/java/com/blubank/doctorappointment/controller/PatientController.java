@@ -6,6 +6,7 @@ import com.blubank.doctorappointment.entity.Appointment;
 import com.blubank.doctorappointment.response.DoctorAppointmentViewResponse;
 import com.blubank.doctorappointment.response.ResponseData;
 import com.blubank.doctorappointment.service.PatientService;
+import com.blubank.doctorappointment.service.PatientServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -19,12 +20,12 @@ import java.util.ResourceBundle;
 public class PatientController {
 
     @Autowired
-    PatientService patientService;
+    PatientService patientServiceImpl;
     ResourceBundle messages = ResourceBundle.getBundle("HospitalMessages");
 
     @GetMapping("/all")
     public ResponseEntity<ResponseData<DoctorAppointmentViewResponse>> getFreeAppointment() {
-        List<DoctorAppointmentViewResponse> doctorAppointmentViewResponse = patientService.showPatientFreeDoctorAppointments();
+        List<DoctorAppointmentViewResponse> doctorAppointmentViewResponse = patientServiceImpl.showPatientFreeDoctorAppointments();
         ResponseData<DoctorAppointmentViewResponse>   responseData =new ResponseData<>();
         if (doctorAppointmentViewResponse.isEmpty()) {
             responseData.setBody(doctorAppointmentViewResponse);
@@ -40,7 +41,7 @@ public class PatientController {
 
     @GetMapping("/{phoneNumber}")
     public ResponseEntity<ResponseData<DoctorAppointmentViewResponse>> getAppointment(@PathVariable String phoneNumber) {
-        List<DoctorAppointmentViewResponse> appointmentByPatient = patientService.findAppointmentByPatient(phoneNumber);
+        List<DoctorAppointmentViewResponse> appointmentByPatient = patientServiceImpl.findAppointmentByPatient(phoneNumber);
         ResponseData<DoctorAppointmentViewResponse> responseData = new ResponseData<>();
         if (appointmentByPatient.isEmpty()) {
             responseData.setBody(appointmentByPatient);
@@ -59,7 +60,7 @@ public class PatientController {
 
     @PostMapping("/reserve")
     public ResponseEntity<ResponseData<DoctorAppointmentViewResponse>> reservingAppointmentForPatient(@RequestBody PatientReservingAppointmentDTO dto) {
-        Appointment appointment = patientService.getAppointmentForPatient(dto);
+        Appointment appointment = patientServiceImpl.getAppointmentForPatient(dto);
         ResponseData<DoctorAppointmentViewResponse> responseData = new ResponseData<>();
         if (appointment==null) {
             responseData.setStatusCode(HttpStatus.NOT_ACCEPTABLE);
@@ -73,7 +74,8 @@ public class PatientController {
 
     @PostMapping("/final")
     public ResponseEntity<ResponseData<DoctorAppointmentViewResponse>> reservedAppointmentForPatient(@RequestBody FinalPatientReserveAppointmentDTO dto) {
-        DoctorAppointmentViewResponse response = patientService.reserveAppointment(dto);
+
+        DoctorAppointmentViewResponse response = patientServiceImpl.reserveAppointment(dto);
         ResponseData<DoctorAppointmentViewResponse> responseData = new ResponseData<>();
         if (response==null) {
             responseData.setStatusCode(HttpStatus.NOT_ACCEPTABLE);

@@ -6,7 +6,9 @@ import com.blubank.doctorappointment.dto.DoctorDTO;
 import com.blubank.doctorappointment.dto.FinalPatientReserveAppointmentDTO;
 import com.blubank.doctorappointment.dto.PatientReservingAppointmentDTO;
 import com.blubank.doctorappointment.entity.Appointment;
+import com.blubank.doctorappointment.response.DeleteAppointmentResponse;
 import com.blubank.doctorappointment.response.DoctorAppointmentViewResponse;
+import com.blubank.doctorappointment.response.DoctorDailyScheduleResponse;
 import com.blubank.doctorappointment.response.Response;
 import com.blubank.doctorappointment.service.DoctorService;
 import com.blubank.doctorappointment.service.PatientService;
@@ -27,11 +29,11 @@ import java.util.Scanner;
 public class ConsoleUI {
 
     @Autowired
-    private PatientService patientService;
+    private PatientService patientServiceImpl;
     @Autowired
-    private DoctorService doctorService;
+    private DoctorService doctorServiceImpl;
     @Autowired
-    private ValidationService<DoctorAvailabilityDTO> doctorValidationService;
+    private ValidationService<DoctorAvailabilityDTO,DoctorDailyScheduleResponse> doctorValidationService;
     @Autowired
     private CacheService cacheService;
     ResourceBundle messages = ResourceBundle.getBundle("HospitalMessages");
@@ -106,7 +108,7 @@ public class ConsoleUI {
         DoctorDTO dto = new DoctorDTO();
         System.out.println(messages.getString("enterDoctorName"));
         dto.setName(scanner.next());
-        Response response = doctorService.saveDoctor(dto);
+        Response response = doctorServiceImpl.saveDoctor(dto);
         System.out.println(response.getMessage());
         System.out.println(messages.getString("setDoctorWorkTime"));
         int reserveChoice = scanner.nextInt();
@@ -116,7 +118,7 @@ public class ConsoleUI {
 
     }
     private void setDoctorSchedule(Scanner scanner) {
-        List<Response> responseList = new ArrayList<>();
+        DoctorDailyScheduleResponse doctorDailyScheduleResponse = new DoctorDailyScheduleResponse();
         DoctorAvailabilityDTO doctorAvailabilityDTO = new DoctorAvailabilityDTO();
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm");
         System.out.println(messages.getString("enterDayOfMonth"));
@@ -130,15 +132,14 @@ public class ConsoleUI {
         String end = scanner.next();
         LocalTime endTime = LocalTime.parse(end, formatter);
         doctorAvailabilityDTO.setEndTime(endTime);
-        if (doctorValidationService.validate(doctorAvailabilityDTO, responseList)) {
-            doctorService.setDoctorDailyWorkSchedule(doctorAvailabilityDTO);
-        }
-        for (Response res : responseList) {
-            System.out.println(res.getMessage());
+        if (doctorValidationService.validate(doctorAvailabilityDTO, doctorDailyScheduleResponse)) {
+            doctorServiceImpl.setDoctorDailyWorkSchedule(doctorAvailabilityDTO);
+        }else{
+            System.out.println(doctorDailyScheduleResponse.getMessage());
         }
     }
     private void setDoctorSchedule( String doctorName,Scanner scanner) {
-        List<Response> responseList = new ArrayList<>();
+        DoctorDailyScheduleResponse doctorDailyScheduleResponse = new DoctorDailyScheduleResponse();
         DoctorAvailabilityDTO doctorAvailabilityDTO = new DoctorAvailabilityDTO();
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm");
         doctorAvailabilityDTO.setDoctorName(doctorName);
@@ -147,23 +148,22 @@ public class ConsoleUI {
         doctorAvailabilityDTO.setDayOfMonth(LocalDate.parse(dayOfMonth));
         System.out.println(messages.getString("enterStartTime"));
         String start = scanner.next();
-        LocalTime startTime = LocalTime.parse(start, formatter);
+        LocalTime startTime = LocalTime.parse(start , formatter);
         doctorAvailabilityDTO.setStartTime(startTime);
         System.out.println(messages.getString("enterEndTime"));
         String end = scanner.next();
-        LocalTime endTime = LocalTime.parse(end, formatter);
+        LocalTime endTime = LocalTime.parse(end , formatter);
         doctorAvailabilityDTO.setEndTime(endTime);
-        if (doctorValidationService.validate(doctorAvailabilityDTO, responseList)) {
-            doctorService.setDoctorDailyWorkSchedule(doctorAvailabilityDTO);
-        }
-        for (Response res : responseList) {
-            System.out.println(res.getMessage());
+        if(doctorValidationService.validate(doctorAvailabilityDTO , doctorDailyScheduleResponse)){
+            doctorServiceImpl.setDoctorDailyWorkSchedule(doctorAvailabilityDTO);
+        }else{
+            System.out.println(doctorDailyScheduleResponse.getMessage());
         }
     }
     private void viewDoctorAppointments(Scanner scanner) {
         System.out.println(messages.getString("enterDayOfMonth"));
         String day = scanner.next();
-        List<DoctorAppointmentViewResponse> availableAppointments = doctorService.showDoctorFreeAppointments(LocalDate.parse(day));
+        List<DoctorAppointmentViewResponse> availableAppointments = doctorServiceImpl.showDoctorFreeAppointments(LocalDate.parse(day));
         if (availableAppointments.isEmpty()) {
             System.out.println(messages.getString("noAppointmentsFound"));
             System.out.println(availableAppointments);
@@ -184,11 +184,11 @@ public class ConsoleUI {
         String dayNumber = scanner.next();
         System.out.println(messages.getString("enterAppointmentDigit"));
         int digit = scanner.nextInt();
-        Response response1 = doctorService.deleteAppointmentByDoctor(digit ,LocalDate.parse(dayNumber));
+        DeleteAppointmentResponse response1 = doctorServiceImpl.deleteAppointmentByDoctor(digit , LocalDate.parse(dayNumber));
         System.out.println(response1.getMessage());
     }
     private void viewDoctorFreeAppointments(Scanner scanner) {
-        List<DoctorAppointmentViewResponse> availableAppointments = patientService.showPatientFreeDoctorAppointments();
+        List<DoctorAppointmentViewResponse> availableAppointments = patientServiceImpl.showPatientFreeDoctorAppointments();
         if (availableAppointments.isEmpty()) {
             System.out.println(messages.getString("noAppointmentsFound"));
         } else {
@@ -206,7 +206,7 @@ public class ConsoleUI {
     private void viewPatientAppointments(Scanner scanner) {
         System.out.println("Enter your phoneNumber:");
         String phoneNumber = scanner.next();
-        List<DoctorAppointmentViewResponse> patientAppointments = patientService.findAppointmentByPatient(phoneNumber);
+        List<DoctorAppointmentViewResponse> patientAppointments = patientServiceImpl.findAppointmentByPatient(phoneNumber);
         if(patientAppointments.isEmpty()){
             System.out.println("No appointments found for the specified patient.");
         }else{
@@ -224,12 +224,12 @@ public class ConsoleUI {
         System.out.println(messages.getString("enterAppointmentDigit"));
         int digit = scanner.nextInt();
         appointmentRequest.setAppointmentDigit(digit);
-        Appointment reservingAppointmentForView = patientService.getAppointmentForPatient(appointmentRequest);
+        Appointment reservingAppointmentForView = patientServiceImpl.getAppointmentForPatient(appointmentRequest);
         System.out.println(messages.getString("confirmAppointmentTime") + " " + reservingAppointmentForView.getStartTime() + " " + messages.getString("endTime") + " " + reservingAppointmentForView.getEndTime() + " " + messages.getString("status") + " " + reservingAppointmentForView.getStatus());
         System.out.println(messages.getString("confirmAppointment"));
         int continueChoice = scanner.nextInt();
         if (continueChoice == 0) {
-            patientService.unreserved(reservingAppointmentForView.getAppointmentsId());
+            patientServiceImpl.unreserved(reservingAppointmentForView.getAppointmentsId());
         }
         FinalPatientReserveAppointmentDTO  finalPatient=new FinalPatientReserveAppointmentDTO();
 
@@ -240,7 +240,7 @@ public class ConsoleUI {
         String patientPhoneNumber = scanner.next();
         finalPatient.setPhoneNumber(patientPhoneNumber);
         finalPatient.setAppointmentDigit(reservingAppointmentForView.getAppointmentsId());
-        DoctorAppointmentViewResponse response = patientService.reserveAppointment(finalPatient);
+        DoctorAppointmentViewResponse response = patientServiceImpl.reserveAppointment(finalPatient);
         if (response == null) {
             System.out.println(messages.getString("appointmentReservationFailed"));
         } else {

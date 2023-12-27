@@ -11,9 +11,8 @@ import java.util.List;
 import java.util.ResourceBundle;
 
 @Service
-public class DoctorValidationService implements ValidationService<DoctorAvailabilityDTO>{
+public class DoctorValidationService implements ValidationService<DoctorAvailabilityDTO,Response>{
     ResourceBundle messages = ResourceBundle.getBundle("HospitalMessages");
-
     @Override
     public boolean validate(DoctorAvailabilityDTO dto , List<Response> responses){
         if(! DateUtil.dateTimeIsValid(dto.getStartTime()))
@@ -29,6 +28,11 @@ public class DoctorValidationService implements ValidationService<DoctorAvailabi
         if(DateUtil.equalsTime(dto.getStartTime(),dto.getEndTime()))
             responses.add(new Response(DateTimeErrorCodeEnum.equalsTime.getErrorCode() ,messages.getString("equalsTime")));
         return responses.size() == 0;
+    }
+
+    @Override
+    public boolean validate(DoctorAvailabilityDTO dto , Response response){
+        return false;
     }
 }
 
