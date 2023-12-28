@@ -51,7 +51,7 @@ public class PatientControllerTest {
         this.appointmentRepository = appointmentRepository;
         this.doctorRepository = doctorRepository;
     }
-
+    LocalDate date = LocalDate.now();
     @BeforeEach
     void init() {
         appointmentRepository.deleteAll();
@@ -82,7 +82,7 @@ public class PatientControllerTest {
     void patients_can_take_an_open_appointment_if_the_appointment_is_already_taken_or_deleted_error() {
         Patient patient = patientRepository.save(new Patient("amir", "09376710620"));
         Doctor doctor=doctorRepository.findByName("DrShokohiFard");
-        Appointment appointment = appointmentRepository.save(new Appointment(LocalTime.of(9, 0), LocalTime.of(9, 30), LocalDate.of(2023, 12, 29), AppointmentStatus.reserved, doctor, patient));
+        Appointment appointment = appointmentRepository.save(new Appointment(LocalTime.of(9, 0), LocalTime.of(9, 30),date, AppointmentStatus.reserved, doctor, patient));
         Assertions.assertThrows(DuplicateRequestException.class, () -> patientService.reservingAppointment(appointment.getAppointmentsId()), "Appointment is reserved.");
     }
 
@@ -102,8 +102,8 @@ public class PatientControllerTest {
         Patient amir = patientRepository.save(new Patient("amir", "09376710620"));
         Doctor doctor=doctorRepository.findByName("DrShokohiFard");
         System.out.println(doctor.getDoctorsId());
-        appointmentRepository.save(new Appointment(LocalTime.of(9, 0), LocalTime.of(9, 30),LocalDate.of(2023,12,29), AppointmentStatus.reserved,doctor,amir));
-        appointmentRepository.save(new Appointment(LocalTime.of(9, 30), LocalTime.of(10, 0),LocalDate.of(2023,12,29), AppointmentStatus.reserved,doctor,amir));
+        appointmentRepository.save(new Appointment(LocalTime.of(9, 0), LocalTime.of(9, 30),date, AppointmentStatus.reserved,doctor,amir));
+        appointmentRepository.save(new Appointment(LocalTime.of(9, 30), LocalTime.of(10, 0),date, AppointmentStatus.reserved,doctor,amir));
         List<DoctorAppointmentViewResponse> doctorappointmentList = new ArrayList<>();
         doctorappointmentList.add(new DoctorAppointmentViewResponse(1L, LocalTime.of(9, 0), LocalTime.of(9, 30), AppointmentStatus.reserved, "amir", "09376710620"));
         ResponseEntity<List<DoctorAppointmentViewResponse>> result = patientController.getAppointment("09376710620");

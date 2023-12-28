@@ -65,12 +65,14 @@ public class DoctorControllerTest {
         cacheService.PutToDoctorMap(1L, drShokohiFard.getName() + "," + drShokohiFard.getDoctorsId());
     }
 
+    LocalDate date = LocalDate.now();
+
     @Test
     @Rollback
     @Transactional
-    public void doctorAddsOpenTimes_EndDateBeforeStartDate_ErrorShown() {
+    public void doctor_adds_open_times_end_date_before_start_date_error_shown() {
         DoctorAvailabilityDTO dto = new DoctorAvailabilityDTO();
-        dto.setDayOfMonth(LocalDate.of(2023, 12, 28));
+        dto.setDayOfMonth(date);
         dto.setStartTime(LocalTime.of(9, 0));
         dto.setEndTime(LocalTime.of(7, 0));
         ResponseEntity<DoctorDailyScheduleResponse> response = doctorController.doctorDailySchedule(dto);
@@ -81,9 +83,9 @@ public class DoctorControllerTest {
     @Test
     @Rollback
     @Transactional
-    public void doctorAddsOpenTimes_PeriodLessThan30Minutes_NoTimeAdded() {
+    public void doctor_adds_open_times_period_less_than_30_minutes_no_time_added() {
         DoctorAvailabilityDTO dto = new DoctorAvailabilityDTO();
-        dto.setDayOfMonth(LocalDate.of(2023, 12, 28));
+        dto.setDayOfMonth(date);
         dto.setStartTime(LocalTime.of(9, 0));
         dto.setEndTime(LocalTime.of(9, 20));//set the end time less than 30 minutes apart from the start time
         ResponseEntity<DoctorDailyScheduleResponse> response = doctorController.doctorDailySchedule(dto);
@@ -95,9 +97,8 @@ public class DoctorControllerTest {
     @Test
     @Rollback
     @Transactional
-    public void doctorCanView30MinutesAppointments_NoAppointments_EmptyListShown() {
-        LocalDate day = LocalDate.of(2023, 12, 28);
-        ResponseEntity<List<DoctorAppointmentViewResponse>> response = doctorController.getFreeDoctorAppointmentTime(day);
+    public void doctor_can_view_30_minutes_appointments_no_appointments_empty_list_shown() {
+        ResponseEntity<List<DoctorAppointmentViewResponse>> response = doctorController.getFreeDoctorAppointmentTime(date);
         assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
         assertTrue(Objects.requireNonNull(response.getBody()).isEmpty());
     }
@@ -106,13 +107,13 @@ public class DoctorControllerTest {
     @Test
     @Rollback
     @Transactional
-    public void doctorCanView30MinutesAppointments_SomeAppointments_PatientInfoShown() {
+    public void doctor_can_view_30_minutes_appointments_some_appointments_patient_info_shown() {
         Patient patient = patientRepository.save(new Patient("amir", "09376710620"));
         Doctor doctor = cacheService.findDoctor(1L);
-        appointmentRepository.save(new Appointment(LocalTime.of(8, 0), LocalTime.of(8, 30), LocalDate.of(2023, 12, 29), AppointmentStatus.reserved, doctor));
-        appointmentRepository.save(new Appointment(LocalTime.of(9, 0), LocalTime.of(9, 30), LocalDate.of(2023, 12, 29), AppointmentStatus.reserved, doctor, patient));
-        appointmentRepository.save(new Appointment(LocalTime.of(9, 30), LocalTime.of(10, 0), LocalDate.of(2023, 12, 29), AppointmentStatus.reserved, doctor, patient));
-        ResponseEntity<List<DoctorAppointmentViewResponse>> response = doctorController.getFreeDoctorAppointmentTime(LocalDate.of(2023, 12, 29));
+        appointmentRepository.save(new Appointment(LocalTime.of(8, 0), LocalTime.of(8, 30),date, AppointmentStatus.reserved, doctor));
+        appointmentRepository.save(new Appointment(LocalTime.of(9, 0), LocalTime.of(9, 30), date, AppointmentStatus.reserved, doctor, patient));
+        appointmentRepository.save(new Appointment(LocalTime.of(9, 30), LocalTime.of(10, 0),date, AppointmentStatus.reserved, doctor, patient));
+        ResponseEntity<List<DoctorAppointmentViewResponse>> response = doctorController.getFreeDoctorAppointmentTime(date);
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertEquals(Objects.requireNonNull(response.getBody()).get(1).getPatientPhoneNumber(), patient.getPhoneNumber());
     }
@@ -121,8 +122,8 @@ public class DoctorControllerTest {
     @Test
     @Rollback
     @Transactional
-    public void doctorCanDeleteOpenAppointment_NoOpenAppointment_404ErrorShown() {
-        LocalDate day = LocalDate.of(2023, 12, 28);
+    public void doctor_can_delete_open_appointment_no_open_appointment_404_error_shown() {
+        LocalDate day = date;
         ResponseEntity<DeleteAppointmentResponse> response = doctorController.deleteAppointment(1, day);
         assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
         assertEquals(Objects.requireNonNull(response.getBody()).getMessage(), "Appointment Not Found.");
@@ -131,12 +132,12 @@ public class DoctorControllerTest {
     @Test
     @Rollback
     @Transactional
-    public void doctorCanDeleteOpenAppointment_AppointmentTaken_406ErrorShown() {
+    public void doctor_can_delete_open_appointment_appointment_taken_406_error_shown() {
         Patient amir = patientRepository.save(new Patient("amir", "09376710620"));
         Doctor doctor = cacheService.findDoctor(1L);
-        appointmentRepository.save(new Appointment(LocalTime.of(9, 0), LocalTime.of(9, 30), LocalDate.of(2023, 12, 29), AppointmentStatus.reserved, doctor, amir));
-        appointmentRepository.save(new Appointment(LocalTime.of(9, 30), LocalTime.of(10, 0), LocalDate.of(2023, 12, 29), AppointmentStatus.reserved, doctor, amir));
-        ResponseEntity<DeleteAppointmentResponse> response = doctorController.deleteAppointment(1, LocalDate.of(2023, 12, 29));
+        appointmentRepository.save(new Appointment(LocalTime.of(9, 0), LocalTime.of(9, 30),date, AppointmentStatus.reserved, doctor, amir));
+        appointmentRepository.save(new Appointment(LocalTime.of(9, 30), LocalTime.of(10, 0),date, AppointmentStatus.reserved, doctor, amir));
+        ResponseEntity<DeleteAppointmentResponse> response = doctorController.deleteAppointment(1,date);
         assertEquals(HttpStatus.NOT_ACCEPTABLE, response.getStatusCode());
         assertEquals(Objects.requireNonNull(response.getBody()).getMessage(), "cannot delete appointment because appointment is reserved.");
     }
@@ -144,11 +145,11 @@ public class DoctorControllerTest {
     @Test
     @Rollback
     @Transactional
-    public void doctorCanDeleteOpenAppointment_ConcurrencyCheck_DoctorDeletingSameAppointment_404ErrorShown() {
+    public void doctor_can_delete_open_appointment_concurrency_check_doctor_deleting_same_appointment_404_error_shown() {
         Patient amir = patientRepository.save(new Patient("amir", "09376710620"));
         Doctor doctor = cacheService.findDoctor(1L);
-        Appointment appointment = appointmentRepository.save(new Appointment(LocalTime.of(9, 0), LocalTime.of(9, 30), LocalDate.of(2023, 12, 29), AppointmentStatus.reserving, doctor, amir));
-        ResponseEntity<DeleteAppointmentResponse> response = doctorController.deleteAppointment(1, LocalDate.of(2023, 12, 29));
+        Appointment appointment = appointmentRepository.save(new Appointment(LocalTime.of(9, 0), LocalTime.of(9, 30), date, AppointmentStatus.reserving, doctor, amir));
+        ResponseEntity<DeleteAppointmentResponse> response = doctorController.deleteAppointment(1,date);
         assertEquals(HttpStatus.NOT_ACCEPTABLE, response.getStatusCode());
         assertEquals(Objects.requireNonNull(response.getBody()).getMessage(), "cannot delete appointment because appointment is reserved.");
 
