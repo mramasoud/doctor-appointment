@@ -1,6 +1,5 @@
 package com.blubank.doctorappointment;
 
-import com.blubank.doctorappointment.controller.DoctorController;
 import com.blubank.doctorappointment.controller.PatientController;
 import com.blubank.doctorappointment.dto.FinalPatientReserveAppointmentDTO;
 import com.blubank.doctorappointment.entity.Appointment;
@@ -37,16 +36,14 @@ public class PatientControllerTest {
 
     PatientController patientController;
     PatientService patientService;
-    DoctorController doctorController;
     PatientRepository patientRepository;
     AppointmentRepository appointmentRepository;
     DoctorRepository doctorRepository;
 
     @Autowired
-    public PatientControllerTest(PatientController patientController, PatientService patientService, DoctorController doctorController, PatientRepository patientRepository, AppointmentRepository appointmentRepository, DoctorRepository doctorRepository) {
+    public PatientControllerTest(PatientController patientController, PatientService patientService, PatientRepository patientRepository, AppointmentRepository appointmentRepository, DoctorRepository doctorRepository) {
         this.patientController = patientController;
         this.patientService = patientService;
-        this.doctorController = doctorController;
         this.patientRepository = patientRepository;
         this.appointmentRepository = appointmentRepository;
         this.doctorRepository = doctorRepository;

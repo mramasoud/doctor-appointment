@@ -1,7 +1,6 @@
 package com.blubank.doctorappointment;
 
 import com.blubank.doctorappointment.controller.DoctorController;
-import com.blubank.doctorappointment.controller.PatientController;
 import com.blubank.doctorappointment.dto.DoctorAvailabilityDTO;
 import com.blubank.doctorappointment.entity.Appointment;
 import com.blubank.doctorappointment.entity.Doctor;
@@ -13,7 +12,6 @@ import com.blubank.doctorappointment.repository.PatientRepository;
 import com.blubank.doctorappointment.response.DeleteAppointmentResponse;
 import com.blubank.doctorappointment.response.DoctorAppointmentViewResponse;
 import com.blubank.doctorappointment.response.DoctorDailyScheduleResponse;
-import com.blubank.doctorappointment.service.PatientService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,8 +33,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 public class DoctorControllerTest {
 
 
-    PatientController patientController;
-    PatientService patientService;
+
     DoctorController doctorController;
     PatientRepository patientRepository;
     AppointmentRepository appointmentRepository;
@@ -44,9 +41,8 @@ public class DoctorControllerTest {
     CacheService cacheService;
 
     @Autowired
-    public DoctorControllerTest(PatientController patientController, PatientService patientService, DoctorController doctorController, PatientRepository patientRepository, AppointmentRepository appointmentRepository, DoctorRepository doctorRepository, CacheService cacheService) {
-        this.patientController = patientController;
-        this.patientService = patientService;
+    public DoctorControllerTest( DoctorController doctorController, PatientRepository patientRepository, AppointmentRepository appointmentRepository, DoctorRepository doctorRepository, CacheService cacheService) {
+
         this.doctorController = doctorController;
         this.patientRepository = patientRepository;
         this.appointmentRepository = appointmentRepository;
@@ -64,18 +60,12 @@ public class DoctorControllerTest {
         Doctor drShokohiFard = doctorRepository.save(new Doctor( "DrShokohiFard"));
         cacheService.PutToDoctorMap(1L, drShokohiFard.getName() + "," + drShokohiFard.getDoctorsId());
     }
-
     LocalDate date = LocalDate.now();
-
     @Test
     @Rollback
     @Transactional
     public void doctor_adds_open_times_end_date_before_start_date_error_shown() {
-        DoctorAvailabilityDTO dto = new DoctorAvailabilityDTO();
-        dto.setDayOfMonth(date);
-        dto.setStartTime(LocalTime.of(9, 0));
-        dto.setEndTime(LocalTime.of(7, 0));
-        ResponseEntity<DoctorDailyScheduleResponse> response = doctorController.doctorDailySchedule(dto);
+        ResponseEntity<DoctorDailyScheduleResponse> response = doctorController.doctorDailySchedule(new DoctorAvailabilityDTO(date,LocalTime.of(9, 0),LocalTime.of(7, 0)));
         assertEquals(HttpStatus.NOT_ACCEPTABLE, response.getStatusCode());
         assertEquals(Objects.requireNonNull(response.getBody()).getMessage(), "endTime is before startTime.");
     }
@@ -84,11 +74,7 @@ public class DoctorControllerTest {
     @Rollback
     @Transactional
     public void doctor_adds_open_times_period_less_than_30_minutes_no_time_added() {
-        DoctorAvailabilityDTO dto = new DoctorAvailabilityDTO();
-        dto.setDayOfMonth(date);
-        dto.setStartTime(LocalTime.of(9, 0));
-        dto.setEndTime(LocalTime.of(9, 20));//set the end time less than 30 minutes apart from the start time
-        ResponseEntity<DoctorDailyScheduleResponse> response = doctorController.doctorDailySchedule(dto);
+        ResponseEntity<DoctorDailyScheduleResponse> response = doctorController.doctorDailySchedule(new DoctorAvailabilityDTO(date,LocalTime.of(9, 0),LocalTime.of(9, 20)));
         assertEquals(HttpStatus.NOT_ACCEPTABLE, response.getStatusCode());
         assertEquals("endTime is before startTime.", response.getBody().getMessage());
     }
@@ -148,7 +134,7 @@ public class DoctorControllerTest {
     public void doctor_can_delete_open_appointment_concurrency_check_doctor_deleting_same_appointment_404_error_shown() {
         Patient amir = patientRepository.save(new Patient("amir", "09376710620"));
         Doctor doctor = cacheService.findDoctor(1L);
-        Appointment appointment = appointmentRepository.save(new Appointment(LocalTime.of(9, 0), LocalTime.of(9, 30), date, AppointmentStatus.reserving, doctor, amir));
+         appointmentRepository.save(new Appointment(LocalTime.of(9, 0), LocalTime.of(9, 30), date, AppointmentStatus.reserving, doctor, amir));
         ResponseEntity<DeleteAppointmentResponse> response = doctorController.deleteAppointment(1,date);
         assertEquals(HttpStatus.NOT_ACCEPTABLE, response.getStatusCode());
         assertEquals(Objects.requireNonNull(response.getBody()).getMessage(), "cannot delete appointment because appointment is reserved.");
