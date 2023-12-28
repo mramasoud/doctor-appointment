@@ -1,5 +1,5 @@
 
-# clinic management
+# clinic managment
 
 Patients will view allOfThe available time slots and will take on of them by entering their info.
 To use the program, you can use the Postman collection (doctor-collection)in the project or use console .
