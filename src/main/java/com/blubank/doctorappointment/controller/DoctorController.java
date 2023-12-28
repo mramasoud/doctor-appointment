@@ -1,12 +1,12 @@
 package com.blubank.doctorappointment.controller;
 
-import com.blubank.doctorappointment.dto.DoctorAvailabilityDTO;
-import com.blubank.doctorappointment.dto.DoctorDTO;
-import com.blubank.doctorappointment.ordinal.CodeProjectEnum;
-import com.blubank.doctorappointment.response.DeleteAppointmentResponse;
-import com.blubank.doctorappointment.response.DoctorAppointmentViewResponse;
-import com.blubank.doctorappointment.response.DoctorDailyScheduleResponse;
-import com.blubank.doctorappointment.response.Response;
+import com.blubank.doctorappointment.model.dto.DoctorAvailabilityDTO;
+import com.blubank.doctorappointment.model.dto.DoctorDTO;
+import com.blubank.doctorappointment.model.ordinal.CodeProjectEnum;
+import com.blubank.doctorappointment.model.dto.response.DeleteAppointmentResponse;
+import com.blubank.doctorappointment.model.dto.response.DoctorAppointmentViewResponse;
+import com.blubank.doctorappointment.model.dto.response.DoctorDailyScheduleResponse;
+import com.blubank.doctorappointment.model.dto.response.Response;
 import com.blubank.doctorappointment.service.DoctorService;
 import com.blubank.doctorappointment.util.DateUtil;
 import com.blubank.doctorappointment.validation.ValidationService;

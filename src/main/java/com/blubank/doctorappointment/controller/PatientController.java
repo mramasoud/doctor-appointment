@@ -1,10 +1,10 @@
 package com.blubank.doctorappointment.controller;
 
-import com.blubank.doctorappointment.dto.FinalPatientReserveAppointmentDTO;
-import com.blubank.doctorappointment.dto.PatientReservingAppointmentDTO;
-import com.blubank.doctorappointment.entity.Appointment;
-import com.blubank.doctorappointment.response.DoctorAppointmentViewResponse;
-import com.blubank.doctorappointment.response.Response;
+import com.blubank.doctorappointment.model.dto.FinalPatientReserveAppointmentDTO;
+import com.blubank.doctorappointment.model.dto.PatientReservingAppointmentDTO;
+import com.blubank.doctorappointment.model.entity.Appointment;
+import com.blubank.doctorappointment.model.dto.response.DoctorAppointmentViewResponse;
+import com.blubank.doctorappointment.model.dto.response.Response;
 import com.blubank.doctorappointment.service.PatientService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -49,7 +49,7 @@ public class PatientController {
     @PostMapping("/reserving")
         public ResponseEntity<String> reservingAppointmentForPatient(@RequestBody PatientReservingAppointmentDTO dto) {
 
-        Appointment appointment = patientServiceImpl.getAppointmentForPatient(dto);
+        Appointment appointment = patientServiceImpl.reservingAppointmentForPatient(dto);
         if (appointment==null) {
             return new ResponseEntity<>("Appointment reservation failed.", HttpStatus.NOT_ACCEPTABLE);
         }else {

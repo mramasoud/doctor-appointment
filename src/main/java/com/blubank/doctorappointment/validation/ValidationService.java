@@ -1,10 +1,7 @@
 package com.blubank.doctorappointment.validation;
 
-import com.blubank.doctorappointment.dto.AbaseDto;
-import com.blubank.doctorappointment.response.AbaseResponse;
-import com.blubank.doctorappointment.response.Response;
-
-import java.util.List;
+import com.blubank.doctorappointment.model.dto.AbaseDto;
+import com.blubank.doctorappointment.model.dto.response.AbaseResponse;
 
 public interface ValidationService<T extends AbaseDto,R extends AbaseResponse>{
 

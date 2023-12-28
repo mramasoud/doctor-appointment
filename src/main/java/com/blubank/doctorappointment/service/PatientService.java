@@ -1,11 +1,11 @@
 package com.blubank.doctorappointment.service;
 
-import com.blubank.doctorappointment.dto.FinalPatientReserveAppointmentDTO;
-import com.blubank.doctorappointment.dto.PatientReservingAppointmentDTO;
-import com.blubank.doctorappointment.entity.Appointment;
-import com.blubank.doctorappointment.entity.Patient;
-import com.blubank.doctorappointment.response.DoctorAppointmentViewResponse;
-import com.blubank.doctorappointment.response.Response;
+import com.blubank.doctorappointment.model.dto.FinalPatientReserveAppointmentDTO;
+import com.blubank.doctorappointment.model.dto.PatientReservingAppointmentDTO;
+import com.blubank.doctorappointment.model.entity.Appointment;
+import com.blubank.doctorappointment.model.entity.Patient;
+import com.blubank.doctorappointment.model.dto.response.DoctorAppointmentViewResponse;
+import com.blubank.doctorappointment.model.dto.response.Response;
 
 import javax.transaction.Transactional;
 import java.util.List;
@@ -16,7 +16,7 @@ public interface PatientService{
     List<DoctorAppointmentViewResponse> findAppointmentByPatient(String phone);
 
     @Transactional
-    Appointment getAppointmentForPatient(PatientReservingAppointmentDTO dto);
+    Appointment reservingAppointmentForPatient(PatientReservingAppointmentDTO dto);
 
     @Transactional
     Response unreserved(Long id);

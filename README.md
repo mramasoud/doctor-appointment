@@ -3,6 +3,7 @@
 
 Patients will view allOfThe available time slots and will take on of them by entering their info.
 To use the program, you can use the Postman collection (doctor-collection)in the project or use console .
+if you want to use console  -> logging.level.root= off 
 
 ## Authors
 - [@mramasoud](https://github.com/mramasoud/doctor-appointment)

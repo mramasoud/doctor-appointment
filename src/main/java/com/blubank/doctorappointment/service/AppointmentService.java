@@ -1,10 +1,9 @@
 package com.blubank.doctorappointment.service;
 
-import com.blubank.doctorappointment.entity.Appointment;
-import com.blubank.doctorappointment.entity.Doctor;
-import com.blubank.doctorappointment.entity.Patient;
-import com.blubank.doctorappointment.response.DeleteAppointmentResponse;
-import com.blubank.doctorappointment.response.Response;
+import com.blubank.doctorappointment.model.entity.Appointment;
+import com.blubank.doctorappointment.model.entity.Doctor;
+import com.blubank.doctorappointment.model.entity.Patient;
+import com.blubank.doctorappointment.model.dto.response.DeleteAppointmentResponse;
 
 import javax.transaction.Transactional;
 import java.time.LocalDate;

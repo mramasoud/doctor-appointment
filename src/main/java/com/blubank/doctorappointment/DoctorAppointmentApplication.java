@@ -1,6 +1,6 @@
 package com.blubank.doctorappointment;
 
-import com.blubank.doctorappointment.ui.ConsoleUI;
+import com.blubank.doctorappointment.console.Console;
 import de.codecentric.boot.admin.server.config.EnableAdminServer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
@@ -13,7 +13,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 @EnableScheduling
 public class DoctorAppointmentApplication {
     @Autowired
-    ConsoleUI console;
+    Console console;
 
     public static void main(String[] args) {
         SpringApplication.run(DoctorAppointmentApplication.class, args);
