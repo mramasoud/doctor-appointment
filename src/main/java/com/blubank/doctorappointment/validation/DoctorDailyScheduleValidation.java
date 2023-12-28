@@ -6,7 +6,6 @@ import com.blubank.doctorappointment.response.DoctorDailyScheduleResponse;
 import com.blubank.doctorappointment.util.DateUtil;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
 import java.util.ResourceBundle;
 
 @Service
@@ -33,7 +32,7 @@ public class DoctorDailyScheduleValidation implements ValidationService<DoctorAv
             response.setMessage(messages.getString("timeNotValid"));
             result = false;
         }
-        if(! DateUtil.timeIsValid(request.getStartTime() , request.getEndTime())){
+        if(!DateUtil.timeIsValid(request.getStartTime() , request.getEndTime())){
             response.setCode(DateTimeErrorCodeEnum.endTimeBeforeStartTime.getErrorCode());
             response.setMessage(messages.getString("endTimeBeforeStartTime"));
             result = false;

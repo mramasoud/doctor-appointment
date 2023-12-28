@@ -2,162 +2,117 @@ package com.blubank.doctorappointment;
 
 import com.blubank.doctorappointment.controller.DoctorController;
 import com.blubank.doctorappointment.controller.PatientController;
-import com.blubank.doctorappointment.dto.DoctorAvailabilityDTO;
-import com.blubank.doctorappointment.dto.DoctorDTO;
 import com.blubank.doctorappointment.dto.FinalPatientReserveAppointmentDTO;
+import com.blubank.doctorappointment.entity.Appointment;
+import com.blubank.doctorappointment.entity.Doctor;
+import com.blubank.doctorappointment.entity.Patient;
+import com.blubank.doctorappointment.ordinal.AppointmentStatus;
+import com.blubank.doctorappointment.repository.AppointmentRepository;
+import com.blubank.doctorappointment.repository.DoctorRepository;
+import com.blubank.doctorappointment.repository.PatientRepository;
 import com.blubank.doctorappointment.response.DoctorAppointmentViewResponse;
 import com.blubank.doctorappointment.service.PatientService;
 import com.sun.jdi.request.DuplicateRequestException;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.MethodOrderer;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestMethodOrder;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.test.annotation.Rollback;
 
 import javax.transaction.Transactional;
 import javax.validation.ValidationException;
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.ResourceBundle;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 
 @SpringBootTest
-@AutoConfigureMockMvc
-@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
-public class PatientControllerTest{
+public class PatientControllerTest {
 
-    @Autowired
-    private PatientController patientController;
 
-    @Autowired
+    PatientController patientController;
     PatientService patientService;
-    @Autowired
     DoctorController doctorController;
+    PatientRepository patientRepository;
+    AppointmentRepository appointmentRepository;
+    DoctorRepository doctorRepository;
 
-    ResourceBundle messages = ResourceBundle.getBundle("HospitalMessages");
+    @Autowired
+    public PatientControllerTest(PatientController patientController, PatientService patientService, DoctorController doctorController, PatientRepository patientRepository, AppointmentRepository appointmentRepository, DoctorRepository doctorRepository) {
+        this.patientController = patientController;
+        this.patientService = patientService;
+        this.doctorController = doctorController;
+        this.patientRepository = patientRepository;
+        this.appointmentRepository = appointmentRepository;
+        this.doctorRepository = doctorRepository;
+    }
 
+    @BeforeEach
+    void init() {
+        appointmentRepository.deleteAll();
+        doctorRepository.deleteAll();
+        patientRepository.deleteAll();
+        doctorRepository.save(new Doctor("DrShokohiFard"));
+    }
 
-    @Transactional
-    @Rollback()
     @Test
-    void patientsCanViewADoctorOpenAppointment(){
-        doctorController.addNewDoctor(new DoctorDTO("akbari"));
+    @Transactional
+    void patients_can_view_a_doctor_open_appointment() {
         ResponseEntity<List<DoctorAppointmentViewResponse>> freeAppointment = patientController.getFreeAppointment();
-        Assertions.assertEquals(HttpStatus.NOT_FOUND , freeAppointment.getStatusCode());
-        Assertions.assertTrue(freeAppointment.getBody().isEmpty());
+        assertEquals(HttpStatus.NOT_FOUND, freeAppointment.getStatusCode());
+        assertTrue(freeAppointment.getBody().isEmpty());
     }
 
+    @Test
     @Transactional
-    @Rollback
-    @Test
-    void PatientsCanTakeAnOpenAppointment_PhoneNumberOrNameIsNotGiven(){
-        doctorController.addNewDoctor(new DoctorDTO("DrShokohiFard"));
-        DoctorAvailabilityDTO dto = new DoctorAvailabilityDTO();
-        LocalDate day = LocalDate.of(2023 , 12 , 27);
-        dto.setDayOfMonth(day);
-        dto.setStartTime(LocalTime.of(12 , 0));
-        dto.setEndTime(LocalTime.of(12 , 35));
-        doctorController.doctorDailySchedule(dto);
-        FinalPatientReserveAppointmentDTO reservd = new FinalPatientReserveAppointmentDTO(1L , null , null);
-        Assertions.assertThrows(ValidationException.class , () -> patientController.reservedAppointmentForPatient(reservd));
+    void patients_can_take_an_open_appointment_phone_number_or_name_is_not_given() {
+        FinalPatientReserveAppointmentDTO reservd = new FinalPatientReserveAppointmentDTO(1L, null, null);
+        Assertions.assertThrows(ValidationException.class, () -> patientController.reservedAppointmentForPatient(reservd));
 
     }
 
 
+    @Test
     @Transactional
-    @Rollback
-    @Test
-    void PatientsCanTakeAnOpenAppointment_IfTheAppointmentIsAlreadyTakenOrDeleted_error(){
-        doctorController.addNewDoctor(new DoctorDTO("DrShokohiFard"));
-        DoctorAvailabilityDTO dto = new DoctorAvailabilityDTO();
-        LocalDate day = LocalDate.of(2023 , 12 , 27);
-        dto.setDayOfMonth(day);
-        dto.setStartTime(LocalTime.of(9 , 0));
-        dto.setEndTime(LocalTime.of(10 , 35));
-        doctorController.doctorDailySchedule(dto);
-        patientService.reservingAppointment(1L);
-        Assertions.assertThrows(DuplicateRequestException.class , () -> patientService.reservingAppointment(1L) , "Appointment is reserved.");
+    void patients_can_take_an_open_appointment_if_the_appointment_is_already_taken_or_deleted_error() {
+        Patient patient = patientRepository.save(new Patient("amir", "09376710620"));
+        Doctor doctor=doctorRepository.findByName("DrShokohiFard");
+        Appointment appointment = appointmentRepository.save(new Appointment(LocalTime.of(9, 0), LocalTime.of(9, 30), LocalDate.of(2023, 12, 29), AppointmentStatus.reserved, doctor, patient));
+        Assertions.assertThrows(DuplicateRequestException.class, () -> patientService.reservingAppointment(appointment.getAppointmentsId()), "Appointment is reserved.");
     }
 
 
-/*
     @Test
-    void testGetAppointmentByPatient() {
-        // Arrange
-        String patientPhoneNumber = "1234567890";
-        List<DoctorAppointmentViewResponse> appointmentByPatient = new ArrayList<>();
-        DoctorAppointmentViewResponse appointment = new DoctorAppointmentViewResponse();
-        appointment.setDoctorId(1L);
-        appointment.setStartTime(LocalTime.now());
-        appointment.setEndTime(LocalTime.now().plusMinutes(30));
-        appointmentByPatient.add(appointment);
-        when(patientService.findAppointmentByPatient(patientPhoneNumber)).thenReturn(appointmentByPatient);
+    @Transactional
+    void patients_can_view_their_own_appointments_if_no_appointment_empty_list_should_be_shown() {
+        ResponseEntity<List<DoctorAppointmentViewResponse>> result = patientController.getAppointment("09376710620");
+        assertEquals(HttpStatus.NOT_FOUND, result.getStatusCode());
+        assertTrue(result.getBody().isEmpty());
+    }
 
-        // Act
-        ResponseEntity<ResponseData<DoctorAppointmentViewResponse>> result = patientController.getAppointment(@PathVariable String phoneNumber);
 
-        // Assert
+    @Test
+    @Transactional
+    void patients_can_view_their_own_appointments_if_more_than_one_appointment_list_should_be_shown() {
+        Patient amir = patientRepository.save(new Patient("amir", "09376710620"));
+        Doctor doctor=doctorRepository.findByName("DrShokohiFard");
+        System.out.println(doctor.getDoctorsId());
+        appointmentRepository.save(new Appointment(LocalTime.of(9, 0), LocalTime.of(9, 30),LocalDate.of(2023,12,29), AppointmentStatus.reserved,doctor,amir));
+        appointmentRepository.save(new Appointment(LocalTime.of(9, 30), LocalTime.of(10, 0),LocalDate.of(2023,12,29), AppointmentStatus.reserved,doctor,amir));
+        List<DoctorAppointmentViewResponse> doctorappointmentList = new ArrayList<>();
+        doctorappointmentList.add(new DoctorAppointmentViewResponse(1L, LocalTime.of(9, 0), LocalTime.of(9, 30), AppointmentStatus.reserved, "amir", "09376710620"));
+        ResponseEntity<List<DoctorAppointmentViewResponse>> result = patientController.getAppointment("09376710620");
         assertEquals(HttpStatus.OK, result.getStatusCode());
-        assertEquals(messages.getString("availableAppointments"), result.getBody().getMessage());
-        assertEquals(appointmentByPatient, result.getBody().getBody());
+        assertFalse(result.getBody().isEmpty());
+        assertEquals(result.getBody().get(0), doctorappointmentList.get(0));
     }
 
-    @Test
-    void testReservingAppointmentForPatient() {
-        // Arrange
-        PatientReservingAppointmentDTO dto = new PatientReservingAppointmentDTO();
-        dto.setPatientPhoneNumber("1234567890");
-        dto.setDoctorId(1L);
-        dto.setAppointmentDate(LocalDate.now());
-        dto.setAppointmentStartTime(LocalTime.now().minusMinutes(30));
-        dto.setAppointmentEndTime(LocalTime.now().plusMinutes(30));
 
-        Appointment appointment = new Appointment();
-        appointment.setAppointmentId(1L);
-        appointment.setDoctorId(1L);
-        appointment.setStartTime(dto.getAppointmentStartTime());
-        appointment.setEndTime(dto.getAppointmentEndTime());
-        appointment.setPatientId(1L);
-
-        when(patientService.getAppointmentForPatient(dto)).thenReturn(appointment);
-
-        // Act
-        ResponseEntity<ResponseData<DoctorAppointmentViewResponse>> result = patientController.reservingAppointmentForPatient(dto);
-
-        // Assert
-        assertEquals(HttpStatus.ACCEPTED, result.getStatusCode());
-        assertEquals(" appointmentNumber: " + appointment.getAppointmentsId() + "  " + appointment.getStartTime() + " - " + appointment.getEndTime() + "    " + messages.getString("confirmAppointmentTime"), result.getBody().getMessage());
-    }
-
-    @Test
-    void testReservedAppointmentForPatient() {
-        // Arrange
-        FinalPatientReserveAppointmentDTO dto = new FinalPatientReserveAppointmentDTO();
-        dto.setPatientPhoneNumber("1234567890");
-        dto.setDoctorId(1L);
-        dto.setAppointmentDate(LocalDate.now());
-        dto.setAppointmentStartTime(LocalTime.now().minusMinutes(30));
-        dto.setAppointmentEndTime(LocalTime.now().plusMinutes(30));
-
-        DoctorAppointmentViewResponse appointment = new DoctorAppointmentViewResponse();
-        appointment.setDoctorId(1L);
-        appointment.setStartTime(dto.getAppointmentStartTime());
-        appointment.setEndTime(dto.getAppointmentEndTime());
-        appointment.setPatientId(1L);
-
-        when(patientService.reserveAppointment(dto)).thenReturn(appointment);
-
-        // Act
-        ResponseEntity<ResponseData<DoctorAppointmentViewResponse>> result = patientController.reservedAppointmentForPatient(dto);
-
-        // Assert
-        assertEquals(HttpStatus.ACCEPTED, result.getStatusCode());
-        assertEquals(messages.getString("reserveAppointment"), result.getBody().getMessage());
-    }*/
 }
+
+

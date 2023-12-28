@@ -36,15 +36,16 @@ public class DoctorServiceImpl implements DoctorService{
 
     ResourceBundle messages = ResourceBundle.getBundle("HospitalMessages");
     private static final int timePeriods_Min = 30;
+
     @Override
     @Transactional
     public Response saveDoctor(DoctorDTO dto) {
-        if (cacheService.findDoctor(1L).getName()!= null) {
+        if (doctorRepository.findByName(dto.getName())!=null) {
             return new Response(CodeProjectEnum.duplicate.getCode(), messages.getString("duplicate"));
         }
         Doctor doctor = doctorRepository.save(new Doctor(dto.getName()));
-        if (doctor.getDoctorsId() != null) {
-            cacheService.PutToDoctorMap( doctor.getDoctorsId(),doctor.getName());
+        if (doctor.getName() != null) {
+            cacheService.PutToDoctorMap( 1L,doctor.getName()+","+doctor.getDoctorsId());
             return new Response(CodeProjectEnum.savedItem.getCode(), messages.getString("doctorSaved"));
         } else {
             return new Response(CodeProjectEnum.serverError.getCode(), messages.getString("serverError"));
@@ -53,9 +54,9 @@ public class DoctorServiceImpl implements DoctorService{
     @Override
     @Transactional
     public DoctorDailyScheduleResponse setDoctorDailyWorkSchedule(DoctorAvailabilityDTO dto) {
-        DoctorDailyScheduleResponse  response;
+
         Doctor doctor = cacheService.findDoctor(1L);
-        if (doctor.getName() == null) {
+        if (doctor.getName()==null) {
             return new DoctorDailyScheduleResponse(CodeProjectEnum.notFound.getCode() , messages.getString("doctorNotFound"));
 
         }
@@ -69,7 +70,7 @@ public class DoctorServiceImpl implements DoctorService{
 
             }
             saveDoctorAvailableTime(availableTimePeriods);
-            return new DoctorDailyScheduleResponse(CodeProjectEnum.savedItem.getCode(), availableTimePeriods.size() + messages.getString("appointmentSaved"));
+            return new DoctorDailyScheduleResponse(CodeProjectEnum.savedItem.getCode(), availableTimePeriods.size() + " " + messages.getString("appointmentSaved"));
 
         } catch (Exception exception) {
             return new DoctorDailyScheduleResponse(CodeProjectEnum.serverError.getCode(), messages.getString("serverError"));

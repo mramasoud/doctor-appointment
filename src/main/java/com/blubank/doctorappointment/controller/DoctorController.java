@@ -19,17 +19,16 @@ import org.springframework.web.bind.annotation.*;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.regex.Pattern;
 
 @RestController
-@RequestMapping("/api/v1/doctor")
+@RequestMapping("/api/v1/doctor/appointments")
 public class DoctorController {
     @Autowired
     private DoctorService doctorServiceImpl;
     @Autowired
     private ValidationService<DoctorAvailabilityDTO,DoctorDailyScheduleResponse> doctorValidationService;
 
-    @PostMapping("/workTime")
+    @PostMapping("/time/schedule")
     public ResponseEntity<DoctorDailyScheduleResponse> doctorDailySchedule(@RequestBody DoctorAvailabilityDTO dto){
         DoctorDailyScheduleResponse doctorDailyScheduleResponse = new DoctorDailyScheduleResponse();
         if(doctorValidationService.validate(dto , doctorDailyScheduleResponse)){
@@ -46,8 +45,8 @@ public class DoctorController {
         }
     }
 
-    @GetMapping("/appointments/{day}")
-    public ResponseEntity<List<DoctorAppointmentViewResponse>> getEmptyAppointmentTime(@PathVariable @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate day){
+    @GetMapping("/{day}")
+    public ResponseEntity<List<DoctorAppointmentViewResponse>> getFreeDoctorAppointmentTime(@PathVariable @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate day){
         List<DoctorAppointmentViewResponse> responses;
         if(DateUtil.dayOfMonthValidation(day)){
             responses= doctorServiceImpl.showDoctorFreeAppointments(day);
@@ -58,12 +57,12 @@ public class DoctorController {
         return new ResponseEntity<>( new ArrayList<>(), HttpStatus.BAD_REQUEST);
     }
 
-    @PostMapping("/add")
+    @PostMapping("/")
     public ResponseEntity<Response> addNewDoctor(@RequestBody DoctorDTO dto){
         return new ResponseEntity<>(doctorServiceImpl.saveDoctor(dto) , HttpStatus.OK);
     }
 
-    @DeleteMapping("/delete/{number}/{day}")
+    @DeleteMapping("/{number}/{day}")
     public ResponseEntity<DeleteAppointmentResponse> deleteAppointment(@PathVariable int number , @PathVariable @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate day){
         DeleteAppointmentResponse response;
         if(DateUtil.dayOfMonthValidation(day)){

@@ -7,7 +7,6 @@ import com.blubank.doctorappointment.ordinal.AppointmentStatus;
 import com.blubank.doctorappointment.ordinal.CodeProjectEnum;
 import com.blubank.doctorappointment.repository.AppointmentRepository;
 import com.blubank.doctorappointment.response.DeleteAppointmentResponse;
-import com.blubank.doctorappointment.response.Response;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -31,7 +30,7 @@ public class AppointmentServiceImpl implements AppointmentService{
 
     @Override
     public Appointment saveAppointment(Appointment availableTimePeriod){
-        return appointmentRepository.save(availableTimePeriod);
+        return appointmentRepository.saveAndFlush(availableTimePeriod);
     }
 
     @Override

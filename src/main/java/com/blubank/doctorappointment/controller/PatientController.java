@@ -4,6 +4,7 @@ import com.blubank.doctorappointment.dto.FinalPatientReserveAppointmentDTO;
 import com.blubank.doctorappointment.dto.PatientReservingAppointmentDTO;
 import com.blubank.doctorappointment.entity.Appointment;
 import com.blubank.doctorappointment.response.DoctorAppointmentViewResponse;
+import com.blubank.doctorappointment.response.Response;
 import com.blubank.doctorappointment.service.PatientService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -22,7 +23,7 @@ public class PatientController {
     PatientService patientServiceImpl;
     ResourceBundle messages = ResourceBundle.getBundle("HospitalMessages");
 
-    @GetMapping("/all")
+    @GetMapping("/")
     public ResponseEntity<List<DoctorAppointmentViewResponse>> getFreeAppointment() {
         List<DoctorAppointmentViewResponse> doctorAppointmentViewResponse = patientServiceImpl.showPatientFreeDoctorAppointments();
         if (doctorAppointmentViewResponse.isEmpty()) {
@@ -45,8 +46,8 @@ public class PatientController {
     }
 
 
-    @PostMapping("/reserve")
-    public ResponseEntity<String> reservingAppointmentForPatient(@RequestBody PatientReservingAppointmentDTO dto) {
+    @PostMapping("/reserving")
+        public ResponseEntity<String> reservingAppointmentForPatient(@RequestBody PatientReservingAppointmentDTO dto) {
 
         Appointment appointment = patientServiceImpl.getAppointmentForPatient(dto);
         if (appointment==null) {
@@ -56,7 +57,7 @@ public class PatientController {
         }
     }
 
-    @PostMapping("/final")
+    @PutMapping("/reserved")
     public ResponseEntity<DoctorAppointmentViewResponse> reservedAppointmentForPatient(@RequestBody FinalPatientReserveAppointmentDTO dto) {
         if(dto.getName() == null && dto.getPhoneNumber() == null){
             throw  new ValidationException("phone or number is not valid");
@@ -68,4 +69,16 @@ public class PatientController {
             return new ResponseEntity<>(doctorAppointmentViewResponse, HttpStatus.ACCEPTED);
         }
     }
+
+    @PutMapping("/unReserved/{digit}")
+    public ResponseEntity<String> unReservingAppointmentForPatient(@PathVariable Long digit) {
+
+        Response unreserved = patientServiceImpl.unreserved(digit);
+        if (unreserved.getMessage()=="success") {
+            return new ResponseEntity<>("Appointment unReservation success.", HttpStatus.ACCEPTED);
+        }else {
+            return new ResponseEntity<>("Appointment unReservation fail.",HttpStatus.NOT_ACCEPTABLE);
+        }
+    }
+
 }

@@ -1,7 +1,6 @@
 package com.blubank.doctorappointment.util;
 
 import java.time.*;
-import java.time.format.DateTimeFormatter;
 import java.util.Date;
 
 public class DateUtil{
@@ -11,9 +10,11 @@ public class DateUtil{
 
         return startTime.isAfter(LocalTime.of(0 , 0)) && endTime.isBefore(LocalTime.of(23 , 59));
     }
-    public static boolean timeIsValid(LocalTime startTime , LocalTime endTime){
-
-        return  !startTime.isAfter(endTime);
+    public static boolean timeIsValid(LocalTime startTime, LocalTime endTime) {
+        if(startTime.getHour() ==endTime.getHour()){
+            return startTime.isBefore(endTime)&&startTime.plusMinutes(30).isBefore(endTime);
+        }
+        return startTime.isBefore(endTime);
     }
     public static boolean equalsTime(LocalTime startTime , LocalTime endTime){
         return startTime.equals(endTime);

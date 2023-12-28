@@ -35,6 +35,14 @@ public class Appointment {
     @JoinColumn(name = "patient_id")
     private Patient patient;
 
+    public Appointment(LocalTime startTime, LocalTime endTime, LocalDate dayOfMonth, AppointmentStatus status, Doctor doctor, Patient patient) {
+        this.startTime = startTime;
+        this.endTime = endTime;
+        this.dayOfMonth = dayOfMonth;
+        this.status = status;
+        this.doctor = doctor;
+        this.patient = patient;
+    }
 
     public Appointment(LocalTime startTime, LocalTime endTime, LocalDate dayOfMonth, AppointmentStatus status, Doctor doctor) {
         this.doctor = doctor;

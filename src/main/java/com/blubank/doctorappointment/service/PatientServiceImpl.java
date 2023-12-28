@@ -103,6 +103,7 @@ public class PatientServiceImpl implements PatientService{
             Optional<Appointment> appointmentById = appointmentServiceImpl.findAppointmentById(id);
             if(appointmentById.isPresent()){
                 appointmentById.get().setStatus(AppointmentStatus.empty);
+                appointmentById.get().setPatient(null);
                 appointmentServiceImpl.saveAppointment(appointmentById.get());
                 return new Response("success");
             }else throw new NotFoundException(messages.getString("appointmentNotFound"));
@@ -144,9 +145,8 @@ public class PatientServiceImpl implements PatientService{
             response.setPatientName(dto.getName());
             response.setPatientPhoneNumber(dto.getPhoneNumber());
             response.setStatus(appointment.get().getStatus());
-        }
-
-
+        }else
+            throw new NotFoundException(messages.getString("appointmentNotFound"));
         return response;
     }
 

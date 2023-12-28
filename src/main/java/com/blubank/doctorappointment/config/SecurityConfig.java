@@ -15,7 +15,7 @@ public class SecurityConfig{
     public SecurityFilterChain defaultSecurityFilterChain(HttpSecurity http) throws Exception{
         http.authorizeRequests(authorizeRequests ->
                         authorizeRequests
-                                .antMatchers("/api/v1/doctor/**")
+                                .antMatchers("/api/v1/doctor/appointments/**")
                                 .hasAuthority("doctor")
                                 .antMatchers("/api/v1/patient/appointments/**")
                                 .hasAuthority("patient")
