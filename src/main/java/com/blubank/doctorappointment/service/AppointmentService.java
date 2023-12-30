@@ -11,8 +11,9 @@ import java.util.List;
 import java.util.Optional;
 
 public interface AppointmentService{
+    @Transactional
     void saveAppointment(List<Appointment> availableTimePeriods);
-
+    @Transactional
     Appointment saveAppointment(Appointment availableTimePeriod);
 
     List<Appointment> findAll();

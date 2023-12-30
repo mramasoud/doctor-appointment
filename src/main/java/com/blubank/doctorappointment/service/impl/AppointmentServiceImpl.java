@@ -26,11 +26,13 @@ public class AppointmentServiceImpl implements AppointmentService {
     private AppointmentRepository appointmentRepository;
 
     @Override
+    @Transactional
     public void saveAppointment(List<Appointment> availableTimePeriods){
         appointmentRepository.saveAll(availableTimePeriods);
     }
 
     @Override
+    @Transactional
     public Appointment saveAppointment(Appointment availableTimePeriod){
         return appointmentRepository.saveAndFlush(availableTimePeriod);
     }

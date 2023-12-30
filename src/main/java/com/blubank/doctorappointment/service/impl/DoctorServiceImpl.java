@@ -91,6 +91,7 @@ public class DoctorServiceImpl implements DoctorService {
         }
     }
     @Override
+    @Transactional
     public List<DoctorAppointmentViewResponse> showDoctorFreeAppointments(LocalDate day) {
         log.info("get free doctor appointment for : " + day);
         Doctor doctor = cacheService.findDoctor(1L);

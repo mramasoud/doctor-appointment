@@ -13,7 +13,7 @@ import java.util.List;
 public interface PatientService{
     @Transactional
     List<DoctorAppointmentViewResponse> showPatientFreeDoctorAppointments();
-
+    @Transactional
     List<DoctorAppointmentViewResponse> findAppointmentByPatient(String phone);
 
     @Transactional

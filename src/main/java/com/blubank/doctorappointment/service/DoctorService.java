@@ -18,7 +18,7 @@ public interface DoctorService{
 
     @Transactional
     DoctorDailyScheduleResponse setDoctorDailyWorkSchedule(DoctorAvailabilityDTO dto);
-
+    @Transactional
     List<DoctorAppointmentViewResponse> showDoctorFreeAppointments(LocalDate day);
 
     @Transactional
