@@ -135,7 +135,7 @@ public class Console {
         doctorAvailabilityDTO.setEndTime(endTime);
         if (doctorValidationService.validate(doctorAvailabilityDTO, doctorDailyScheduleResponse)) {
             DoctorDailyScheduleResponse doctorDailySchedule = doctorServiceImpl.setDoctorDailyWorkSchedule(doctorAvailabilityDTO);
-            System.out.println(doctorDailySchedule);
+            System.out.println(doctorDailySchedule.getMessage());
         } else {
             System.out.println(doctorDailyScheduleResponse.getMessage());
         }
@@ -159,7 +159,7 @@ public class Console {
         doctorAvailabilityDTO.setEndTime(endTime);
         if (doctorValidationService.validate(doctorAvailabilityDTO, doctorDailyScheduleResponse)) {
             DoctorDailyScheduleResponse doctorDailySchedule = doctorServiceImpl.setDoctorDailyWorkSchedule(doctorAvailabilityDTO);
-            System.out.println(doctorDailySchedule);
+            System.out.println(doctorDailySchedule.getMessage());
         } else {
             System.out.println(doctorDailyScheduleResponse.getMessage());
         }
