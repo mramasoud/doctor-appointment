@@ -11,6 +11,7 @@ import javax.transaction.Transactional;
 import java.util.List;
 
 public interface PatientService{
+    @Transactional
     List<DoctorAppointmentViewResponse> showPatientFreeDoctorAppointments();
 
     List<DoctorAppointmentViewResponse> findAppointmentByPatient(String phone);

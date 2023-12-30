@@ -2,13 +2,13 @@ package com.blubank.doctorappointment.service.impl;
 
 import com.blubank.doctorappointment.model.dto.FinalPatientReserveAppointmentDTO;
 import com.blubank.doctorappointment.model.dto.PatientReservingAppointmentDTO;
+import com.blubank.doctorappointment.model.dto.response.DoctorAppointmentViewResponse;
+import com.blubank.doctorappointment.model.dto.response.Response;
 import com.blubank.doctorappointment.model.entity.Appointment;
 import com.blubank.doctorappointment.model.entity.Doctor;
 import com.blubank.doctorappointment.model.entity.Patient;
 import com.blubank.doctorappointment.model.ordinal.AppointmentStatus;
 import com.blubank.doctorappointment.repository.PatientRepository;
-import com.blubank.doctorappointment.model.dto.response.DoctorAppointmentViewResponse;
-import com.blubank.doctorappointment.model.dto.response.Response;
 import com.blubank.doctorappointment.service.AppointmentService;
 import com.blubank.doctorappointment.service.PatientService;
 import com.sun.jdi.request.DuplicateRequestException;
@@ -36,6 +36,7 @@ public class PatientServiceImpl implements PatientService {
     public final static Long CONSTANT_NUMBER_TO_START_FROM_ONE = 1L;
     ResourceBundle messages = ResourceBundle.getBundle("HospitalMessages");
 
+    @Transactional
     @Override
     public List<DoctorAppointmentViewResponse> showPatientFreeDoctorAppointments() {
         log.info("Getting all appointments for the patient");

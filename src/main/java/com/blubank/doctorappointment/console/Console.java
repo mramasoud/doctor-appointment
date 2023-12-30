@@ -134,7 +134,8 @@ public class Console {
         LocalTime endTime = LocalTime.parse(end, formatter);
         doctorAvailabilityDTO.setEndTime(endTime);
         if (doctorValidationService.validate(doctorAvailabilityDTO, doctorDailyScheduleResponse)) {
-            doctorServiceImpl.setDoctorDailyWorkSchedule(doctorAvailabilityDTO);
+            DoctorDailyScheduleResponse doctorDailySchedule = doctorServiceImpl.setDoctorDailyWorkSchedule(doctorAvailabilityDTO);
+            System.out.println(doctorDailySchedule);
         } else {
             System.out.println(doctorDailyScheduleResponse.getMessage());
         }
@@ -157,7 +158,8 @@ public class Console {
         LocalTime endTime = LocalTime.parse(end, formatter);
         doctorAvailabilityDTO.setEndTime(endTime);
         if (doctorValidationService.validate(doctorAvailabilityDTO, doctorDailyScheduleResponse)) {
-            doctorServiceImpl.setDoctorDailyWorkSchedule(doctorAvailabilityDTO);
+            DoctorDailyScheduleResponse doctorDailySchedule = doctorServiceImpl.setDoctorDailyWorkSchedule(doctorAvailabilityDTO);
+            System.out.println(doctorDailySchedule);
         } else {
             System.out.println(doctorDailyScheduleResponse.getMessage());
         }
